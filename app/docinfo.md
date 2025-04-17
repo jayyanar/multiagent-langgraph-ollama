@@ -1,12 +1,7 @@
-![workflow](https://github.com/user-attachments/assets/123f64c5-58c3-4ee9-91ca-9f4ee4418a5a)![ChatGPT Image Apr 17, 2025, 06_10_00 PM](https://github.com/user-attachments/assets/8f784e44-608b-4c9f-86f4-ce0ebb944bdf)# 🔄 LangGraph-Based Agentic Workflow: PDF Data Reconciliation with Siebel System
+![workflow](https://github.com/user-attachments/assets/65af9ad9-de4a-44da-b868-67da832c6637)![workflow](https://github.com/user-attachments/assets/123f64c5-58c3-4ee9-91ca-9f4ee4418a5a)![ChatGPT Image Apr 17, 2025, 06_10_00 PM](https://github.com/user-attachments/assets/8f784e44-608b-4c9f-86f4-ce0ebb944bdf)# 🔄 LangGraph-Based Agentic Workflow: PDF Data Reconciliation with Siebel System
 
 ## 🎯 Objective
 Automate the reconciliation of structured data in Siebel against fields extracted from PDF documents using a multi-agent system powered by **Gemini Pro** and **Document AI**.
-
-
-![Uploading workflo<?xml version="1.0" encoding="utf-8"?><Error><Code>AuthenticationFailed</Code><Message>Server failed to authenticate the request. Make sure the value of Authorization header is formed correctly including the signature.
-RequestId:7f805e3b-001e-001b-7595-af0431000000
-Time:2025-04-17T12:40:00.7829713Z</Message><AuthenticationErrorDetail>Signed expiry time [Thu, 17 Apr 2025 12:39:56 GMT] must be after signed start time [Thu, 17 Apr 2025 12:40:00 GMT]</AuthenticationErrorDetail></Error>w.png…]()
 
 
 ---
