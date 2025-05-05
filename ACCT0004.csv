@@ -1,0 +1,8 @@
+Date,Description,Type,Amount,Balance
+2025-04-20,Payroll Deposit,Credit,490,490
+2025-04-21,Restaurant,Debit,75,415
+2025-04-22,Grocery Store,Debit,105,310
+2025-04-23,Transit Pass,Debit,45,265
+2025-04-24,Amazon Purchase,Debit,280,-15
+2025-04-24,Overdraft Fee,Debit,35,-50
+2025-04-25,Cash Deposit,Credit,100,50

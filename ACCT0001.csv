@@ -1,0 +1,13 @@
+Date,Description,Type,Amount,Balance
+2025-04-20,Payroll Deposit,Credit,845.0,845.0
+2025-04-21,Grocery Store,Debit,78.99,766.01
+2025-04-22,Coffee Shop,Debit,9.75,756.26
+2025-04-23,Online Shopping,Debit,135.5,620.76
+2025-04-24,Utility Rebate,Credit,95.0,715.76
+2025-04-25,ATM Withdrawal,Debit,200.0,515.76
+2025-04-26,LinkedIn Premium,Debit,299.0,216.76
+2025-04-27,Movie Ticket,Debit,18.5,198.26
+2025-04-28,Transit Pass,Debit,52.0,146.26
+2025-04-29,Amazon Purchase,Debit,160.0,-13.74
+2025-04-29,Overdraft Fee,Debit,35.0,-48.74
+2025-04-30,Bonus Credit,Credit,150.0,101.26

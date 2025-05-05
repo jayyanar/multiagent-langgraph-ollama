@@ -1,0 +1,9 @@
+Date,Description,Type,Amount,Balance
+2025-04-20,Payroll Deposit,Credit,525.0,525.0
+2025-04-21,Grocery Store,Debit,80.0,445.0
+2025-04-22,Coffee Shop,Debit,12.25,432.75
+2025-04-23,ATM Withdrawal,Debit,200.0,232.75
+2025-04-24,Online Shopping,Debit,185.0,47.75
+2025-04-25,Movie Ticket,Debit,60.0,-12.25
+2025-04-25,Overdraft Fee,Debit,35.0,-47.25
+2025-04-26,Utility Rebate,Credit,120.0,72.75

@@ -1,0 +1,8 @@
+Date,Description,Type,Amount,Balance
+2025-04-20,Payroll Deposit,Credit,520.0,520.0
+2025-04-21,Coffee Shop,Debit,6.5,513.5
+2025-04-22,Grocery Store,Debit,125.0,388.5
+2025-04-23,Amazon Purchase,Debit,380.7,7.8
+2025-04-24,Transit Pass,Debit,9.0,-1.2
+2025-04-24,Overdraft Fee,Debit,35.0,-36.2
+2025-04-25,Utility Rebate,Credit,60.0,23.8
