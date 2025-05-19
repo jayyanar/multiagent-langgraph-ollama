@@ -1,0 +1,14 @@
+Agent Name,Role
+Orchestrator Agent,Central controller coordinating workflow execution.
+Data Aggregator Agent,"Fetches required data from ICMP, SAS DB, and Core2 APIs."
+Answering Agent,"Performs direct QA validations (orientation, legibility, etc.)."
+Reasoning Agent,"Handles logic exceptions (e.g., PLL = NA), provides explanations."
+Aggregator Agent,Gathers output from other agents and compiles final result.
+,
+LangGraph Agent Name,Role Description / Responsibilities
+document_understanding_agent,"Extracts metadata from invoices using LLM/OCR — includes identifying Manufacturer, Dealer, Distributor, Dates, etc."
+spi_block_extractor,"Detects and parses SPI-specific instruction blocks from the invoice, optionally via AIMS API integration"
+spi_lookup_agent,Matches extracted roles and SPI with historical data; retrieves templates from VectorDB based on document context
+auto_prompt_generation_agent,"Synthesizes SPI Block + Lookup results into a role-aware, field-level extraction plan (Auto-prompt)"
+extraction_agent,Applies the generated prompt to the original document and metadata to extract structured invoice fields
+response_agent,Formats the final enriched output into a validated ERP-compatible JSON with embedded SPI annotations
