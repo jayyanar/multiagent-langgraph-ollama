@@ -16,6 +16,7 @@ All datasets referenced are synthetic (Claim2, Hogan, Visa SP Service, Mars Stat
 ## Approach 1: Rule-Based Graph (No LLM)
 
 ### Architecture Diagram
+
 ```mermaid
 flowchart TD
     UserQuery[User Query] --> Orchestrator
