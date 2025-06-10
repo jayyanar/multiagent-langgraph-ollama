@@ -8,7 +8,7 @@
 
 | Goal | Rationale |
 |------|-----------|
-| **Business-Aware Parsing** | Apply domain rules per document type to yield strongly-typed objects (Invoices, Policies, Lab Reports …). |
+| **Business-Aware Parsing** | Apply domain rules per document type to yield strongly-typed objects (Invoices, Policies, Legal Agreements …). |
 | **Enrichment & NBA** | Run optional **translation**, **calculations**, and **validations** (e.g., tax lookup, ERP cross-check); write the result back. |
 | **Single Source of Truth** | Persist every step as an immutable document keyed by **`edip_transaction_id`** in MongoDB. |
 | **Easy Consumption** | REST + **Chat-over-Mongo** layer so users and downstream systems fetch by `edip_transaction_id` or natural language. |
@@ -20,14 +20,12 @@
 
 | Layer | Core Features |
 |-------|---------------|
-| **Ingestion** | Multi-format upload, virus scan, queue fan-out. |
+
 | **Agentic Extraction** | Gemini-Pro prompt chain → chunks + groundings. |
 | **Business Parsing** | YAML/JSON logic or Python plug-ins to map chunks into domain objects. |
-| **Enrichment** | ⇢ **Translation** (Gemini) <br>⇢ **Calculation** (rates, totals, KPI formulas) <br>⇢ **Validation** (call ERP/CRM APIs, rule engine). |
+| **Enrichment** | ⇢ **Translation** (Gemini) <br>⇢ **Calculation** (rates, totals, SPI formulas) <br>⇢ **Validation** (call AIMS APIs, ECMP engine). |
 | **Persistence** | Collections: `raw_docs`, `parsed_*`, `validated_*`; every write tagged with `edip_transaction_id`. |
 | **API / SDK** | `/parse`, `/result/{edip_transaction_id}`, `/chat` (RAG over Mongo). |
-| **Chat Layer** | Vector+text retrieval → Gemini prompt to answer questions, optionally link to groundings. |
-| **Ops & Sec** | OpenShift Helm, GPU pools, Prometheus, Loki, OTel traces, Keycloak SSO. |
 
 ---
 
