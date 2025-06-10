@@ -8,12 +8,11 @@
 
 | Goal | Rationale |
 |------|-----------|
-| **Automated Understanding** | Convert PDFs, scans, office docs into hierarchical, grounded JSON without templates. |
 | **Business-Aware Parsing** | Apply domain rules per document type to yield strongly-typed objects (Invoices, Policies, Lab Reports …). |
 | **Enrichment & NBA** | Run optional **translation**, **calculations**, and **validations** (e.g., tax lookup, ERP cross-check); write the result back. |
 | **Single Source of Truth** | Persist every step as an immutable document keyed by **`edip_transaction_id`** in MongoDB. |
-| **Easy Consumption** | REST/GraphQL/gRPC + **Chat-over-Mongo** layer so users and downstream systems fetch by `edip_transaction_id` or natural language. |
-| **Enterprise-grade** | Security (SSO, RBAC), observability, audit, OpenShift deployment. |
+| **Easy Consumption** | REST + **Chat-over-Mongo** layer so users and downstream systems fetch by `edip_transaction_id` or natural language. |
+| **Enterprise-grade** | Security (Enterprise SSO, RBAC), observability, audit, OpenShift deployment. |
 
 ---
 
