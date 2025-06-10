@@ -31,6 +31,7 @@
 
 ## 3 · High-Level Architecture
 
+
 ```mermaid
 flowchart LR
     subgraph Frontend
@@ -69,9 +70,7 @@ flowchart LR
 | **EDIP Flow-Runner** | LangGraph / Google-ADK | Executes *Ingest → Extract → Parse → Enrich → Persist* agents with retries & back-off. |
 | **Gemini Pro** | Google Vertex | Zero-shot extraction, translation, reasoning. |
 | **Parsing Plug-ins** | Python (pydantic) | User-defined rules & YAML schemas; output domain DTOs. |
-| **read-svc** | Spring Boot 3 | REST + GraphQL; read-only access by `edip_transaction_id`, filters. |
-| **chat-svc** | LangChain-Java / FastAPI | Embeds chunks (text + vectors), answers ad-hoc questions, returns grounded references. |
+| **read-svc** | Spring Boot 3 | REST ; read-only access by `edip_transaction_id`, filters. |
+| **chat-svc** | Langgraph-Python / FastAPI | Embeds chunks (text + vectors), answers ad-hoc questions, returns grounded references. |
 | **MongoDB Atlas / Enterprise** | WiredTiger | Stores all artifacts; Atlas Search + Vector Search (or local Enterprise Ops Manager). |
-| **OpenShift Ops** | Helm + ArgoCD | Container builds, GPU node-pool, HPA, Istio mTLS. |
 
-... (document trimmed here for brevity) ...
