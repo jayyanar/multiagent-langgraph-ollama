@@ -14,3 +14,11 @@
 | JIRA                        | Medium (M)             | ✅ Required                 | Requires context understanding of ticket states, fields, and embedded content|
 
 
+# Answering and Reasoning Agent
+
+| Interaction Pattern                                             | Complexity Level |
+|----------------------------------------------------------------|------------------|
+| Fewer than 10 queries, no advanced reasoning required           | Medium (M)       |
+| More than 10 queries, no reasoning required                     | Low (L)          |
+| Fewer than 10 queries, reasoning and contextual explanation required | Low (L)      |
+| More than 10 queries with reasoning and interpretation required | Extra Large (XL) |
