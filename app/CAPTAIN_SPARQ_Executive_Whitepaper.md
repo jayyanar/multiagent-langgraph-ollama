@@ -347,7 +347,7 @@ flowchart TD
     %% Data Aggregation
     DATA_TYPE{Data Type Check}
     STRUCT_PROC[Structured Data Processing]
-    UNSTRUCT_PROC[Unstructured Data Processing<br/>OCR/NLP/AI]
+    UNSTRUCT_PROC["Unstructured Data Processing<br/>OCR/NLP/AI"]
     NORMALIZE[Normalize & Enrich Data]
     VALIDATE_INPUT[Validate Input Data]
     
@@ -359,7 +359,7 @@ flowchart TD
     
     %% Automated Path
     AUTO_APPROVE[Auto-Approve Transaction]
-    POPULATE_FORMS[Auto-Populate QTT/ROBI/Indigo]
+    POPULATE_FORMS["Auto-Populate QTT/ROBI/Indigo"]
     
     %% Agent Assignment
     AGENT_TYPE{Agent Assignment}
@@ -374,7 +374,7 @@ flowchart TD
     
     %% Digital Agent Management
     BEHAVIOR_CHECK[Monitor Digital Agent Behavior]
-    ROGUE_DETECT{Rogue Behavior?}
+    ROGUE_DETECT{"Rogue Behavior?"}
     OFFBOARD[Offboard Digital Agent]
     
     %% Business Rules & Compliance
@@ -391,7 +391,7 @@ flowchart TD
     %% Error Handling
     ERROR{Error Occurred}
     ERROR_HANDLE[Error Handling]
-    ESCALATE[Escalate to L2/L3]
+    ESCALATE["Escalate to L2/L3"]
     
     %% Flow Connections
     START --> DATA_TYPE
@@ -406,16 +406,16 @@ flowchart TD
     RAG_PROC --> AI_SCORE
     AI_SCORE --> DECISION
     
-    DECISION -->|High Confidence| AUTO_APPROVE
-    DECISION -->|Low Confidence| AGENT_TYPE
+    DECISION -->|"High Confidence"| AUTO_APPROVE
+    DECISION -->|"Low Confidence"| AGENT_TYPE
     
     AUTO_APPROVE --> SOP_CHECK
     SOP_CHECK --> COMPLIANCE_CHECK
     COMPLIANCE_CHECK --> POPULATE_FORMS
     POPULATE_FORMS --> AUDIT_LOG
     
-    AGENT_TYPE -->|Human Available| HUMAN_QUEUE
-    AGENT_TYPE -->|Digital Agent| DIGITAL_QUEUE
+    AGENT_TYPE -->|"Human Available"| HUMAN_QUEUE
+    AGENT_TYPE -->|"Digital Agent"| DIGITAL_QUEUE
     
     HUMAN_QUEUE --> HUMAN_REVIEW
     DIGITAL_QUEUE --> DIGITAL_REVIEW
@@ -448,6 +448,7 @@ flowchart TD
     ERROR --> ERROR_HANDLE
     ERROR_HANDLE --> ESCALATE
 
+    %% Styling
     classDef start fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
     classDef process fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
     classDef decision fill:#fff3e0,stroke:#ff9800,stroke-width:2px
@@ -475,14 +476,14 @@ flowchart TD
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Frontend** | React.js, TypeScript | Modern web interface |
-| **API Gateway** | Kong/AWS API Gateway | Request routing, security |
+| **API Gateway** | APIGEE API Gateway | Request routing, security |
 | **Microservices** | Spring Boot, Java 17 | Business logic services |
 | **Message Queue** | Apache Kafka | Event streaming |
 | **Database** | PostgreSQL, Redis | Data persistence, caching |
 | **Search** | Elasticsearch | Full-text search, analytics |
-| **ML/AI** | Python, TensorFlow | Machine learning models |
+| **ML/AI** | Tachyon , Langgraph, Google ADK, UI Path Maestro |
 | **Container** | Docker, Kubernetes | Containerization, orchestration |
-| **Monitoring** | Prometheus, Grafana | Observability, metrics |
+| **Monitoring** | Prometheus, Grafana | Observability, metrics, Arize AI/Phoenix |
 
 ### Security & Compliance Framework
 
