@@ -1,0 +1,16 @@
+Good Day Gokul !
+
+I would like to share some feedback regarding the way Operational Excellence is being led by Adi. I am observing a few gaps that are impacting our delivery and team efficiency.
+
+Adi is often committing timelines to the business without fully understanding the ground realities, technical complexities, or the impact on the teams. These short-term commitments are made without a strategic view of how we should be building the application/product. As a result, it is derailing the development effort and causing unnecessary churn for the team.
+
+
+1. Additionally, new team members  from US have been added with the expectation of immediate productivity, but without providing them adequate ramp-up time. This has introduced additional challenges for the existing teams and slowed down overall progress.Introducing two new POs and a new Scrum Master—who are also new to Wells Fargo—has further slowed the process instead of accelerating it.
+2. There is also limited collaboration with the POs on requirements and roadmaps. I find myself having to feed most of the functional and feature-level details, which is not sustainable. Moreover, difficult conversations with PO leaders about unrealistic expectations are not being addressed proactively
+3. The lack of a clearly defined RACI is adding to the confusion. For example, I had aligned the team and work items, but suddenly the resource Bilal was removed from user story tasks and reassigned to O2A activities. Such changes without coordination make it difficult to plan and deliver effectively.
+
+
+I wanted to bring this to your attention so we can collectively address these issues and ensure smoother execution going forward.
+
+Regards
+AJ
