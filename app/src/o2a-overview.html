@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project O2A — Executive Overview</title>
+<style>
+  :root {
+    --bg: #f4f7fc;
+    --panel: #ffffff;
+    --ink: #1a1f2e;
+    --ink-soft: #3f475c;
+    --ink-mute: #6b7388;
+    --rule: #e1e5ee;
+    --accent: #1f4ea6;
+    --green: #14704a;
+    --orange: #b25c00;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 32px 24px 80px; }
+  header.cover {
+    background: linear-gradient(135deg, #0c1c3a 0%, #14306b 45%, #1f4ea6 100%);
+    color: #fff; border-radius: 14px; padding: 32px 36px; margin-bottom: 22px;
+    box-shadow: 0 14px 40px rgba(12,28,58,0.25);
+  }
+  header.cover .eyebrow { font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase; opacity: 0.8; }
+  header.cover h1 { margin: 8px 0 6px; font-size: 30px; font-weight: 700; letter-spacing: -0.3px; }
+  header.cover p { margin: 0; opacity: 0.92; font-size: 15px; max-width: 980px; }
+  header.cover .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 22px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.16); }
+  header.cover .stat .v { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  header.cover .stat .l { font-size: 11px; opacity: 0.78; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 24px 28px; margin-bottom: 18px; }
+  .panel h2 { font-size: 18px; margin: 0 0 12px; font-weight: 700; }
+  .panel p, .panel li { color: var(--ink-soft); font-size: 14px; }
+  .panel ul { padding-left: 22px; margin: 6px 0 0; }
+
+  .diagram-card { background: #fff; border: 1px solid var(--rule); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+  svg { width: 100%; height: auto; display: block; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } header.cover .stats { grid-template-columns: 1fr 1fr; } }
+
+  .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 22px; }
+  .card .label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+  .card.problem .label { color: #a32a2a; }
+  .card.solution .label { color: var(--green); }
+  .card.outcome .label { color: var(--accent); }
+  .card h3 { margin: 6px 0 8px; font-size: 17px; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 13.5px; }
+
+  .vp { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .vp { grid-template-columns: 1fr; } }
+
+  code { font-family: var(--mono); font-size: 12.5px; background: #eef0f5; border-radius: 4px; padding: 1px 5px; color: #2a3144; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="cover">
+  <div class="eyebrow">Executive Overview</div>
+  <h1>Project O2A — Observe to Agent</h1>
+  <p>Convert recorded human SOP work into data-aware autonomous agents that validate records across enterprise databases, APIs, and document stores — at scale, with full audit, without expanding the operations headcount.</p>
+  <div class="stats">
+    <div class="stat"><div class="v">1,000+</div><div class="l">Concurrent agent runs</div></div>
+    <div class="stat"><div class="v">50K+</div><div class="l">Catalogued data objects</div></div>
+    <div class="stat"><div class="v">100s</div><div class="l">Sources unified</div></div>
+    <div class="stat"><div class="v">1y</div><div class="l">Auditable trail</div></div>
+  </div>
+</header>
+
+<div class="grid-3">
+  <div class="card problem">
+    <div class="label">Problem</div>
+    <h3>SOPs don't scale through humans</h3>
+    <p>Operations teams repeat the same multi-source validations daily. Agents can do it — but only if they know the data. Today they don't.</p>
+  </div>
+  <div class="card solution">
+    <div class="label">Solution</div>
+    <h3>Two governed platform services</h3>
+    <p><strong>DDaaS</strong> catalogs every source and makes agents data-aware. <strong>Tool Registry</strong> executes their calls through pooled, audited connections.</p>
+  </div>
+  <div class="card outcome">
+    <div class="label">Outcome</div>
+    <h3>Each new SOP gets cheaper</h3>
+    <p>Onboard a source once; every future agent inherits it. Marginal cost of the next automation drops sharply.</p>
+  </div>
+</div>
+
+<div class="diagram-card">
+  <div class="legend">
+    <span><i style="background:#5a6273"></i>Upstream / Downstream (not in scope)</span>
+    <span><i style="background:#1f4ea6"></i>DDaaS — data dictionary</span>
+    <span><i style="background:#14704a"></i>Tool Registry — execution</span>
+    <span><i style="background:#a32a2a"></i>Vault</span>
+    <span><i style="background:#6b47b8"></i>Enterprise data sources</span>
+  </div>
+
+<svg viewBox="0 0 1280 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="O2A end-to-end overview">
+  <defs>
+    <linearGradient id="ext3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#6b7388"/><stop offset="1" stop-color="#4a5163"/>
+    </linearGradient>
+    <linearGradient id="ddaas3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#2c5fb8"/><stop offset="1" stop-color="#1f4ea6"/>
+    </linearGradient>
+    <linearGradient id="tr3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#1f8d5b"/><stop offset="1" stop-color="#14704a"/>
+    </linearGradient>
+    <linearGradient id="vault3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#c14444"/><stop offset="1" stop-color="#8e2424"/>
+    </linearGradient>
+    <linearGradient id="ds3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#7e5cc6"/><stop offset="1" stop-color="#5b3ea0"/>
+    </linearGradient>
+    <linearGradient id="scopeBg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f6f9ff"/><stop offset="1" stop-color="#eaf0fb"/>
+    </linearGradient>
+
+    <marker id="bigArrow" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#3f475c"/>
+    </marker>
+    <marker id="bigArrowB" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#1f4ea6"/>
+    </marker>
+    <marker id="bigArrowG" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#14704a"/>
+    </marker>
+
+    <filter id="soft3" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feOffset in="b" dy="3" result="o"/>
+      <feComponentTransfer in="o" result="o2"><feFuncA type="linear" slope="0.18"/></feComponentTransfer>
+      <feMerge><feMergeNode in="o2"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- TITLE -->
+  <text x="640" y="36" text-anchor="middle" fill="#1a1f2e" font-size="18" font-weight="700">End-to-End O2A Pipeline</text>
+  <text x="640" y="56" text-anchor="middle" fill="#6b7388" font-size="12">From human SOP capture to autonomous agent execution against enterprise data</text>
+
+  <!-- SCOPE BACKGROUND for DDaaS + Tool Registry -->
+  <g filter="url(#soft3)">
+    <rect x="305" y="280" width="670" height="260" rx="20" fill="url(#scopeBg)" stroke="#1f4ea6" stroke-dasharray="6 4" stroke-width="1.5"/>
+    <text x="640" y="308" text-anchor="middle" fill="#1f4ea6" font-size="13" font-weight="700" letter-spacing="1">PLATFORM SCOPE — TWO SERVICES OWNED BY THIS DESIGN</text>
+  </g>
+
+  <!-- STAGE 1: SKAN.ai capture -->
+  <g filter="url(#soft3)">
+    <rect x="40" y="120" width="200" height="120" rx="14" fill="url(#ext3)"/>
+    <text x="140" y="152" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">SKAN.ai</text>
+    <text x="140" y="172" text-anchor="middle" fill="#dde2ee" font-size="11">Records human SOP execution</text>
+    <text x="140" y="190" text-anchor="middle" fill="#dde2ee" font-size="11">across business lines</text>
+    <text x="140" y="216" text-anchor="middle" fill="#cfd5e2" font-size="11" font-style="italic">(Upstream — not in scope)</text>
+  </g>
+
+  <!-- STAGE 2: Ingestion Pipeline -->
+  <g filter="url(#soft3)">
+    <rect x="40" y="380" width="220" height="160" rx="14" fill="url(#ext3)"/>
+    <text x="150" y="412" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Ingestion Pipeline</text>
+    <text x="150" y="430" text-anchor="middle" fill="#dde2ee" font-size="11">Builds SKILL.md from SKAN traces</text>
+    <text x="150" y="446" text-anchor="middle" fill="#dde2ee" font-size="11">+ SOP documents</text>
+    <line x1="60" y1="458" x2="240" y2="458" stroke="#dde2ee" stroke-opacity="0.35"/>
+    <text x="150" y="476" text-anchor="middle" fill="#e7eef9" font-size="11">• Option A: pure SKILL.md</text>
+    <text x="150" y="492" text-anchor="middle" fill="#e7eef9" font-size="11">• Option B: + Python with</text>
+    <text x="150" y="508" text-anchor="middle" fill="#e7eef9" font-size="11">  placeholders for Tools</text>
+    <text x="150" y="528" text-anchor="middle" fill="#cfd5e2" font-size="11" font-style="italic">(Upstream — not in scope)</text>
+  </g>
+
+  <!-- ============== DDaaS BIG BOX ============== -->
+  <g filter="url(#soft3)">
+    <rect x="335" y="340" width="290" height="170" rx="14" fill="url(#ddaas3)"/>
+    <text x="480" y="372" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Data Dictionary as a Service</text>
+    <text x="480" y="392" text-anchor="middle" fill="#cfdbf2" font-size="11">DDaaS — the catalog of meaning</text>
+    <line x1="355" y1="406" x2="605" y2="406" stroke="#cfdbf2" stroke-opacity="0.35"/>
+    <text x="480" y="426" text-anchor="middle" fill="#e7eef9" font-size="12">ddaas-api · ddaas-profiler · ddaas-enricher</text>
+    <text x="480" y="446" text-anchor="middle" fill="#e7eef9" font-size="11">• Source onboarding + Vault</text>
+    <text x="480" y="462" text-anchor="middle" fill="#e7eef9" font-size="11">• Kafka-driven profiling (100-row sample)</text>
+    <text x="480" y="478" text-anchor="middle" fill="#e7eef9" font-size="11">• LLM enrichment (semantics · glossary · joins)</text>
+    <text x="480" y="494" text-anchor="middle" fill="#e7eef9" font-size="11">• REST + MCP catalog surface</text>
+  </g>
+
+  <!-- ============== TOOL REGISTRY BIG BOX ============== -->
+  <g filter="url(#soft3)">
+    <rect x="660" y="340" width="290" height="170" rx="14" fill="url(#tr3)"/>
+    <text x="805" y="372" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Tool Registry</text>
+    <text x="805" y="392" text-anchor="middle" fill="#d5ecdc" font-size="11">The execution layer</text>
+    <line x1="680" y1="406" x2="930" y2="406" stroke="#d5ecdc" stroke-opacity="0.35"/>
+    <text x="805" y="426" text-anchor="middle" fill="#e9f5ee" font-size="12">toolreg-router · toolreg-async-cb · toolreg-scheduler</text>
+    <text x="805" y="446" text-anchor="middle" fill="#e9f5ee" font-size="11">• Pooled connections per source</text>
+    <text x="805" y="462" text-anchor="middle" fill="#e9f5ee" font-size="11">• Sync &amp; async API patterns</text>
+    <text x="805" y="478" text-anchor="middle" fill="#e9f5ee" font-size="11">• Quotas · timeouts · circuit breakers</text>
+    <text x="805" y="494" text-anchor="middle" fill="#e9f5ee" font-size="11">• Full audit · OpenTelemetry</text>
+  </g>
+
+  <!-- DDaaS ↔ Tool Registry link -->
+  <path d="M625,425 L660,425" stroke="#1a1f2e" stroke-width="2" marker-end="url(#bigArrow)" fill="none"/>
+  <path d="M660,455 L625,455" stroke="#1a1f2e" stroke-width="2" marker-end="url(#bigArrow)" fill="none"/>
+  <text x="642" y="416" text-anchor="middle" font-size="10" fill="#1a1f2e" font-weight="700">sample</text>
+  <text x="642" y="478" text-anchor="middle" font-size="10" fill="#1a1f2e" font-weight="700">tool_def</text>
+
+  <!-- Vault under platform scope -->
+  <g filter="url(#soft3)">
+    <rect x="540" y="555" width="200" height="60" rx="10" fill="url(#vault3)"/>
+    <text x="640" y="585" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Vault</text>
+    <text x="640" y="602" text-anchor="middle" fill="#f7d9d9" font-size="11">Shared secret store · DDaaS writes, Tool Registry reads</text>
+  </g>
+  <path d="M480,510 L580,555" stroke="#a32a2a" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+  <path d="M805,510 L700,555" stroke="#a32a2a" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+
+  <!-- STAGE 4: Google ADK -->
+  <g filter="url(#soft3)">
+    <rect x="1030" y="380" width="220" height="160" rx="14" fill="url(#ext3)"/>
+    <text x="1140" y="412" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Google ADK Agent Runtime</text>
+    <text x="1140" y="432" text-anchor="middle" fill="#dde2ee" font-size="11">Runs SKILL.md as autonomous</text>
+    <text x="1140" y="448" text-anchor="middle" fill="#dde2ee" font-size="11">agents at scale</text>
+    <line x1="1050" y1="462" x2="1230" y2="462" stroke="#dde2ee" stroke-opacity="0.35"/>
+    <text x="1140" y="482" text-anchor="middle" fill="#e7eef9" font-size="11">• Reads describe() via MCP</text>
+    <text x="1140" y="498" text-anchor="middle" fill="#e7eef9" font-size="11">• Calls execute() per step</text>
+    <text x="1140" y="514" text-anchor="middle" fill="#e7eef9" font-size="11">• Emits run summary &amp; audit</text>
+    <text x="1140" y="534" text-anchor="middle" fill="#cfd5e2" font-size="11" font-style="italic">(Downstream — not in scope)</text>
+  </g>
+
+  <!-- STAGE 5: Enterprise data sources -->
+  <g filter="url(#soft3)">
+    <rect x="1030" y="120" width="220" height="190" rx="14" fill="url(#ds3)"/>
+    <text x="1140" y="152" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Enterprise Data Sources</text>
+    <text x="1140" y="174" text-anchor="middle" fill="#e3dbf2" font-size="11">Touched only by Tool Registry</text>
+    <line x1="1050" y1="188" x2="1230" y2="188" stroke="#e3dbf2" stroke-opacity="0.35"/>
+    <text x="1140" y="208" text-anchor="middle" fill="#f1ecfa" font-size="12">Oracle · MS SQL · Teradata</text>
+    <text x="1140" y="226" text-anchor="middle" fill="#f1ecfa" font-size="12">Postgres · MySQL · MongoDB</text>
+    <text x="1140" y="244" text-anchor="middle" fill="#f1ecfa" font-size="12">S3 (parquet / csv / json)</text>
+    <text x="1140" y="262" text-anchor="middle" fill="#f1ecfa" font-size="12">External APIs (sync &amp; async)</text>
+    <text x="1140" y="290" text-anchor="middle" fill="#e3dbf2" font-size="11" font-style="italic">Existing assets — federated, not replaced</text>
+  </g>
+
+  <!-- ARROWS BETWEEN STAGES -->
+  <!-- SKAN.ai -> Ingestion -->
+  <path d="M140,240 L150,380" stroke="#3f475c" stroke-width="3" marker-end="url(#bigArrow)" fill="none"/>
+  <text x="80" y="320" text-anchor="end" fill="#3f475c" font-size="11" font-weight="700">1 traces + SOP</text>
+
+  <!-- Ingestion -> DDaaS (search & describe) -->
+  <path d="M260,440 L335,420" stroke="#1f4ea6" stroke-width="3" marker-end="url(#bigArrowB)" fill="none"/>
+  <text x="298" y="412" text-anchor="middle" fill="#1f4ea6" font-size="11" font-weight="700">2 search · describe</text>
+  <path d="M335,460 L260,470" stroke="#1f4ea6" stroke-width="3" stroke-dasharray="4 3" marker-end="url(#bigArrowB)" fill="none"/>
+  <text x="296" y="490" text-anchor="middle" fill="#1f4ea6" font-size="11" font-weight="700">data-aware Tools</text>
+
+  <!-- Ingestion -> ADK (sends SKILL.md) -->
+  <path d="M260,420 C420,180 870,180 1030,400" stroke="#3f475c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#bigArrow)" fill="none"/>
+  <text x="640" y="178" text-anchor="middle" fill="#3f475c" font-size="11" font-weight="700">3 hand off data-aware SKILL.md to ADK</text>
+
+  <!-- ADK -> Tool Registry (execute) -->
+  <path d="M1030,440 L950,425" stroke="#14704a" stroke-width="3" marker-end="url(#bigArrowG)" fill="none"/>
+  <text x="1000" y="412" text-anchor="middle" fill="#14704a" font-size="11" font-weight="700">4 execute</text>
+  <path d="M950,460 L1030,470" stroke="#14704a" stroke-width="3" stroke-dasharray="4 3" marker-end="url(#bigArrowG)" fill="none"/>
+  <text x="990" y="490" text-anchor="middle" fill="#14704a" font-size="11" font-weight="700">result / trace</text>
+
+  <!-- Tool Registry -> Sources -->
+  <path d="M950,380 L1030,250" stroke="#14704a" stroke-width="3" marker-end="url(#bigArrowG)" fill="none"/>
+  <text x="990" y="320" text-anchor="middle" fill="#14704a" font-size="11" font-weight="700">5 query / sample / API call</text>
+
+  <!-- Footer: outcomes -->
+  <g>
+    <rect x="40" y="630" width="1210" height="160" rx="14" fill="#fff" stroke="#e1e5ee"/>
+    <text x="640" y="660" text-anchor="middle" fill="#1a1f2e" font-size="14" font-weight="700">What the two platform services unlock</text>
+    <g font-size="13" fill="#3f475c">
+      <text x="80" y="700" font-weight="700" fill="#1f4ea6">Data-aware by construction</text>
+      <text x="80" y="720">Every SKILL.md is bound to real Tools at build time.</text>
+      <text x="80" y="738">No more guessing tables, columns, or API operations.</text>
+
+      <text x="475" y="700" font-weight="700" fill="#14704a">Connections scale to thousands</text>
+      <text x="475" y="720">Pooled, governed, audited. 1,000 agents share</text>
+      <text x="475" y="738">80 connections — not 1,000. Sources stay safe.</text>
+
+      <text x="870" y="700" font-weight="700" fill="#a32a2a">Credentials in one place</text>
+      <text x="870" y="720">Vault is the only place a password lives.</text>
+      <text x="870" y="738">Rotation is a Vault op, not an outage.</text>
+    </g>
+    <line x1="80" y1="760" x2="1200" y2="760" stroke="#e1e5ee"/>
+    <text x="640" y="780" text-anchor="middle" fill="#6b7388" font-size="12" font-style="italic">Once a source is onboarded, every future agent inherits it for free. The marginal cost of the next automation falls — the working definition of platform leverage.</text>
+  </g>
+
+</svg>
+</div>
+
+<div class="vp">
+  <div class="panel">
+    <h2>How to read this diagram</h2>
+    <ul>
+      <li><strong>SKAN.ai</strong> captures what operations teams do.</li>
+      <li><strong>Ingestion Pipeline</strong> turns that into a procedural <code>SKILL.md</code>.</li>
+      <li><strong>DDaaS</strong> tells the pipeline <em>what data exists, what it means, and where to find it</em>, so the SKILL.md is bound to real Tools at build time.</li>
+      <li><strong>Tool Registry</strong> is where the live agent actually <em>calls</em> data sources — through pooled, audited connections.</li>
+      <li><strong>Google ADK</strong> orchestrates the agent run; ADK never touches a database driver.</li>
+      <li><strong>Enterprise data sources</strong> are federated, not replaced — DBs, APIs, S3 stay where they are.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h2>Why this works at scale</h2>
+    <ul>
+      <li><strong>One catalog, many consumers</strong> — every team's agents get data-awareness from the same source of truth.</li>
+      <li><strong>One execution choke point</strong> — every read in the company funnels through Tool Registry, so quotas, timeouts, audits, and circuit breakers apply uniformly.</li>
+      <li><strong>One credential store</strong> — Vault is the only place a password lives.</li>
+      <li><strong>Two services, two scale signals</strong> — DDaaS scales on catalog reads, Tool Registry scales on active queries. Each grows where it needs to.</li>
+      <li><strong>Compounding leverage</strong> — onboarding cost is paid once per source, not once per agent.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

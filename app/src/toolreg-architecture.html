@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool Registry Architecture — Project O2A</title>
+<style>
+  :root {
+    --bg: #f4f7fc;
+    --panel: #ffffff;
+    --ink: #1a1f2e;
+    --ink-soft: #3f475c;
+    --ink-mute: #6b7388;
+    --rule: #e1e5ee;
+    --accent: #14704a;
+    --accent-soft: #e1f3ea;
+    --blue: #1f4ea6;
+    --blue-soft: #e8f0fb;
+    --warn: #b25c00;
+    --warn-soft: #fff4e5;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 32px 24px 80px; }
+  header.cover {
+    background: linear-gradient(135deg, #0c3f29 0%, #14704a 60%, #1f8d5b 100%);
+    color: #fff; border-radius: 14px; padding: 28px 32px; margin-bottom: 22px;
+    box-shadow: 0 12px 36px rgba(12,63,41,0.2);
+  }
+  header.cover .eyebrow { font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; opacity: 0.85; }
+  header.cover h1 { margin: 6px 0 4px; font-size: 26px; font-weight: 700; letter-spacing: -0.2px; }
+  header.cover p { margin: 0; opacity: 0.92; font-size: 14px; max-width: 900px; }
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 22px 26px; margin-bottom: 18px; }
+  .panel h2 { font-size: 17px; margin: 0 0 12px; font-weight: 700; }
+  .panel h3 { font-size: 13px; margin: 14px 0 6px; color: var(--ink-mute); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700; }
+  .panel p, .panel li { color: var(--ink-soft); font-size: 14px; }
+  .panel ul, .panel ol { padding-left: 22px; margin: 6px 0 10px; }
+  .panel li { margin: 4px 0; }
+  .panel li strong { color: var(--ink); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 8px 0 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-soft); }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .diagram-card { background: #fff; border: 1px solid var(--rule); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+  svg { width: 100%; height: auto; display: block; }
+  .twocol { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+  @media (max-width: 980px) { .twocol { grid-template-columns: 1fr; } }
+  .step { display: flex; gap: 12px; padding: 8px 0; border-top: 1px solid var(--rule); }
+  .step:first-child { border-top: none; }
+  .step .n { flex: 0 0 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .step .n.async { background: var(--warn); }
+  .step .n.blue { background: var(--blue); }
+  .step .t { font-size: 13.5px; color: var(--ink-soft); }
+  .step .t b { color: var(--ink); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; }
+  .pill.router { background: var(--accent-soft); color: var(--accent); }
+  .pill.cb { background: var(--warn-soft); color: var(--warn); }
+  .pill.sched { background: var(--blue-soft); color: var(--blue); }
+  code { font-family: var(--mono); font-size: 12.5px; background: #eef0f5; border-radius: 4px; padding: 1px 5px; color: #2a3144; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="cover">
+  <div class="eyebrow">Project O2A · Component 2</div>
+  <h1>Tool Registry — Architecture &amp; Execution Flow</h1>
+  <p>How <code style="color:#dfe6f3;background:rgba(255,255,255,.08);border:0;">toolreg-router</code>, <code style="color:#dfe6f3;background:rgba(255,255,255,.08);border:0;">toolreg-async-cb</code>, and <code style="color:#dfe6f3;background:rgba(255,255,255,.08);border:0;">toolreg-scheduler</code> cooperate to broker every data-source call — sync DB queries, sync API calls, and async API patterns (webhook + polling) — shown end-to-end with the DDaaS context.</p>
+</header>
+
+<div class="diagram-card">
+  <div class="legend">
+    <span><i style="background:#14704a"></i>Router (gRPC + REST)</span>
+    <span><i style="background:#b25c00"></i>Async callback receiver</span>
+    <span><i style="background:#1f4ea6"></i>Scheduler (polling)</span>
+    <span><i style="background:#6b47b8"></i>Tool implementation / pool</span>
+    <span><i style="background:#a32a2a"></i>Vault</span>
+    <span><i style="background:#5a6273"></i>External system / source</span>
+    <span><i style="background:#d9852b"></i>Audit / state store</span>
+  </div>
+
+<svg viewBox="0 0 1280 1080" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tool Registry architecture diagram">
+  <defs>
+    <linearGradient id="router" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#1f8d5b"/><stop offset="1" stop-color="#14704a"/>
+    </linearGradient>
+    <linearGradient id="cb" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#d9852b"/><stop offset="1" stop-color="#b25c00"/>
+    </linearGradient>
+    <linearGradient id="sched" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#2c5fb8"/><stop offset="1" stop-color="#1f4ea6"/>
+    </linearGradient>
+    <linearGradient id="tool" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#7e5cc6"/><stop offset="1" stop-color="#5b3ea0"/>
+    </linearGradient>
+    <linearGradient id="vault2" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#c14444"/><stop offset="1" stop-color="#8e2424"/>
+    </linearGradient>
+    <linearGradient id="ext2" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#6b7388"/><stop offset="1" stop-color="#4a5163"/>
+    </linearGradient>
+    <linearGradient id="store2" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#e89a3b"/><stop offset="1" stop-color="#c87519"/>
+    </linearGradient>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3f475c"/>
+    </marker>
+    <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#14704a"/>
+    </marker>
+    <marker id="arrowO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b25c00"/>
+    </marker>
+    <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f4ea6"/>
+    </marker>
+
+    <filter id="soft2" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feOffset in="b" dy="2" result="o"/>
+      <feComponentTransfer in="o" result="o2"><feFuncA type="linear" slope="0.18"/></feComponentTransfer>
+      <feMerge><feMergeNode in="o2"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- LANE LABELS -->
+  <g font-family="var(--sans)" font-size="11" fill="#6b7388" font-weight="700" letter-spacing="0.7">
+    <text x="14" y="115" transform="rotate(-90 14 115)">CALLERS</text>
+    <text x="14" y="290" transform="rotate(-90 14 290)">ROUTER</text>
+    <text x="14" y="490" transform="rotate(-90 14 490)">TOOLS</text>
+    <text x="14" y="700" transform="rotate(-90 14 700)">POOLS</text>
+    <text x="14" y="900" transform="rotate(-90 14 900)">SOURCES</text>
+  </g>
+
+  <!-- ============ CALLERS ============ -->
+  <g filter="url(#soft2)">
+    <rect x="60" y="60" width="240" height="100" rx="12" fill="url(#ext2)"/>
+    <text x="180" y="92" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Google ADK Agent</text>
+    <text x="180" y="112" text-anchor="middle" fill="#dde2ee" font-size="11">Generated from SKILL.md</text>
+    <text x="180" y="128" text-anchor="middle" fill="#dde2ee" font-size="11">calls execute() at runtime</text>
+    <text x="180" y="148" text-anchor="middle" fill="#dde2ee" font-size="11">via MCP / gRPC</text>
+  </g>
+  <g filter="url(#soft2)">
+    <rect x="330" y="60" width="240" height="100" rx="12" fill="url(#ext2)"/>
+    <text x="450" y="92" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">DDaaS profiler</text>
+    <text x="450" y="112" text-anchor="middle" fill="#dde2ee" font-size="11">During registration</text>
+    <text x="450" y="128" text-anchor="middle" fill="#dde2ee" font-size="11">calls sampleRows() and</text>
+    <text x="450" y="148" text-anchor="middle" fill="#dde2ee" font-size="11">describeSchema()</text>
+  </g>
+  <g filter="url(#soft2)">
+    <rect x="600" y="60" width="220" height="100" rx="12" fill="url(#ext2)"/>
+    <text x="710" y="92" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Async Upstream APIs</text>
+    <text x="710" y="112" text-anchor="middle" fill="#dde2ee" font-size="11">Call back into the registry</text>
+    <text x="710" y="128" text-anchor="middle" fill="#dde2ee" font-size="11">/callbacks/{trace_id} when</text>
+    <text x="710" y="148" text-anchor="middle" fill="#dde2ee" font-size="11">a long-running job completes</text>
+  </g>
+  <g filter="url(#soft2)">
+    <rect x="850" y="60" width="220" height="100" rx="12" fill="url(#ext2)" opacity="0.85"/>
+    <text x="960" y="92" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">DDaaS (catalog)</text>
+    <text x="960" y="112" text-anchor="middle" fill="#dde2ee" font-size="11">Source of truth for tool_id</text>
+    <text x="960" y="128" text-anchor="middle" fill="#dde2ee" font-size="11">definitions &amp; describe</text>
+    <text x="960" y="148" text-anchor="middle" fill="#dde2ee" font-size="11">Tool Registry only executes</text>
+  </g>
+
+  <!-- ============ ROUTER ============ -->
+  <g filter="url(#soft2)">
+    <rect x="60" y="210" width="800" height="160" rx="14" fill="url(#router)"/>
+    <text x="460" y="240" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">toolreg-router</text>
+    <text x="460" y="260" text-anchor="middle" fill="#d5ecdc" font-size="11">Spring Boot 3 · gRPC + REST · mTLS · HPA on active queries · holds JDBC pools in memory</text>
+    <line x1="100" y1="275" x2="820" y2="275" stroke="#d5ecdc" stroke-opacity="0.35"/>
+    <g font-size="12" fill="#e9f5ee">
+      <text x="80" y="298" font-weight="700" fill="#fff">Pipeline per request</text>
+      <text x="80" y="318">1. Authn (mTLS + signed header)</text>
+      <text x="80" y="336">2. Resolve tool_id → SourceTool + source_id</text>
+      <text x="80" y="354">3. Quota / rate limit (Redis)</text>
+      <text x="445" y="298" font-weight="700" fill="#fff">Execution</text>
+      <text x="445" y="318">4. Acquire connection (pool SPI)</text>
+      <text x="445" y="336">5. Apply timeout / row cap / byte cap</text>
+      <text x="445" y="354">6. Execute, stream, audit, update circuit breaker</text>
+    </g>
+  </g>
+
+  <!-- Right-side: Redis + Audit -->
+  <g filter="url(#soft2)">
+    <rect x="900" y="210" width="170" height="76" rx="10" fill="url(#store2)"/>
+    <text x="985" y="240" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Redis</text>
+    <text x="985" y="258" text-anchor="middle" fill="#fde8c9" font-size="11">rate-limit counters</text>
+    <text x="985" y="274" text-anchor="middle" fill="#fde8c9" font-size="11">circuit-breaker state</text>
+  </g>
+  <g filter="url(#soft2)">
+    <rect x="900" y="294" width="170" height="76" rx="10" fill="url(#store2)" opacity="0.85"/>
+    <text x="985" y="324" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Audit Store</text>
+    <text x="985" y="342" text-anchor="middle" fill="#fde8c9" font-size="11">Postgres + object store</text>
+    <text x="985" y="358" text-anchor="middle" fill="#fde8c9" font-size="11">1y retention</text>
+  </g>
+
+  <!-- Arrows: callers → router -->
+  <path d="M180,160 L180,210" stroke="#14704a" stroke-width="2" marker-end="url(#arrowG)" fill="none"/>
+  <text x="190" y="190" font-size="11" fill="#14704a" font-weight="700">execute / executeAsync</text>
+  <path d="M450,160 L450,210" stroke="#14704a" stroke-width="2" marker-end="url(#arrowG)" fill="none"/>
+  <text x="460" y="190" font-size="11" fill="#14704a" font-weight="700">sampleRows</text>
+
+  <!-- Router → Redis + Audit -->
+  <path d="M860,260 L900,250" stroke="#3f475c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+  <path d="M860,320 L900,330" stroke="#3f475c" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- DDaaS context dotted line -->
+  <path d="M960,160 L820,210" stroke="#5a6273" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+  <text x="838" y="200" font-size="11" fill="#5a6273" font-weight="700">tool_def (read at boot)</text>
+
+  <!-- ============ ASYNC CB ============ -->
+  <g filter="url(#soft2)">
+    <rect x="60" y="420" width="380" height="120" rx="14" fill="url(#cb)"/>
+    <text x="250" y="450" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">toolreg-async-cb</text>
+    <text x="250" y="468" text-anchor="middle" fill="#fde8c9" font-size="11">Webhook receiver for async upstreams</text>
+    <g font-size="12" fill="#fff4e5">
+      <text x="80" y="492">• POST /callbacks/{trace_id}</text>
+      <text x="80" y="510">• Validates signature, resolves trace</text>
+      <text x="80" y="528">• Updates async_trace + signals waiter</text>
+    </g>
+  </g>
+
+  <!-- ============ SCHEDULER ============ -->
+  <g filter="url(#soft2)">
+    <rect x="460" y="420" width="400" height="120" rx="14" fill="url(#sched)"/>
+    <text x="660" y="450" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">toolreg-scheduler</text>
+    <text x="660" y="468" text-anchor="middle" fill="#cfdbf2" font-size="11">Polling jobs for async upstreams without webhooks</text>
+    <g font-size="12" fill="#e7eef9">
+      <text x="480" y="492">• Quartz scheduler · per-trace polling job</text>
+      <text x="480" y="510">• Exponential backoff · TTL on traces</text>
+      <text x="480" y="528">• Marks status=complete / timeout / error</text>
+    </g>
+  </g>
+
+  <!-- Trace store -->
+  <g filter="url(#soft2)">
+    <rect x="900" y="420" width="170" height="120" rx="10" fill="url(#store2)"/>
+    <text x="985" y="448" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">async_trace</text>
+    <text x="985" y="466" text-anchor="middle" fill="#fde8c9" font-size="11">Postgres</text>
+    <text x="985" y="492" text-anchor="middle" fill="#fde8c9" font-size="11">trace_id · upstream_id</text>
+    <text x="985" y="508" text-anchor="middle" fill="#fde8c9" font-size="11">status · result · TTL</text>
+  </g>
+
+  <!-- Router → async_cb/sched on async path -->
+  <path d="M250,370 L250,420" stroke="#b25c00" stroke-width="2" marker-end="url(#arrowO)" fill="none"/>
+  <text x="170" y="395" font-size="11" fill="#b25c00" font-weight="700">register webhook trace</text>
+  <path d="M660,370 L660,420" stroke="#1f4ea6" stroke-width="2" marker-end="url(#arrowB)" fill="none"/>
+  <text x="580" y="395" font-size="11" fill="#1f4ea6" font-weight="700">register polling job</text>
+
+  <!-- Upstream → async-cb -->
+  <path d="M710,160 C710,300 350,300 250,420" stroke="#b25c00" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowO)" fill="none"/>
+  <text x="500" y="200" font-size="11" fill="#b25c00" font-weight="700">async upstream calls /callbacks/{trace_id}</text>
+
+  <!-- async-cb + scheduler → async_trace -->
+  <path d="M440,480 L900,480" stroke="#3f475c" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow)" fill="none"/>
+  <path d="M860,500 L900,500" stroke="#3f475c" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow)" fill="none"/>
+  <text x="700" y="475" font-size="11" fill="#3f475c" font-weight="700">update trace status</text>
+
+  <!-- ============ SOURCE TOOL SPI ============ -->
+  <g filter="url(#soft2)">
+    <rect x="60" y="600" width="800" height="180" rx="14" fill="url(#tool)"/>
+    <text x="460" y="630" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">SourceTool SPI &amp; ConnectionPool SPI</text>
+    <text x="460" y="650" text-anchor="middle" fill="#e3dbf2" font-size="11">Pluggable implementations · loaded as Spring Boot starters · pool product is a configuration choice</text>
+    <line x1="100" y1="664" x2="820" y2="664" stroke="#e3dbf2" stroke-opacity="0.35"/>
+    <g font-size="12" fill="#f1ecfa">
+      <text x="80" y="688" font-weight="700" fill="#fff">SourceTool implementations</text>
+      <text x="80" y="708">• OracleTool · MSSQLTool · TeradataTool</text>
+      <text x="80" y="726">• PostgresTool · MySQLTool</text>
+      <text x="80" y="744">• MongoTool · S3Tool</text>
+      <text x="80" y="762">• ApiSyncTool · ApiAsyncTool</text>
+      <text x="445" y="688" font-weight="700" fill="#fff">ConnectionPoolProvider SPI</text>
+      <text x="445" y="708">• Oracle UCP  (recommended for Oracle, RAC-aware)</text>
+      <text x="445" y="726">• Apache DBCP2  (universal enterprise default)</text>
+      <text x="445" y="744">• Tomcat JDBC Pool  (lightweight fallback)</text>
+      <text x="445" y="762">• HikariCP  (only if approved)</text>
+    </g>
+  </g>
+
+  <!-- Vault -->
+  <g filter="url(#soft2)">
+    <rect x="900" y="600" width="170" height="76" rx="10" fill="url(#vault2)"/>
+    <text x="985" y="630" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Vault</text>
+    <text x="985" y="650" text-anchor="middle" fill="#f7d9d9" font-size="11">credential read</text>
+    <text x="985" y="666" text-anchor="middle" fill="#f7d9d9" font-size="11">at pool init only</text>
+  </g>
+
+  <!-- Router → SourceTool/Pool -->
+  <path d="M460,370 L460,600" stroke="#14704a" stroke-width="2" marker-end="url(#arrowG)" fill="none"/>
+  <text x="465" y="585" font-size="11" fill="#14704a" font-weight="700">acquire conn / call API</text>
+
+  <!-- SourceTool → Vault -->
+  <path d="M860,640 L900,640" stroke="#a32a2a" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+  <text x="800" y="630" font-size="11" fill="#a32a2a" font-weight="700">read secret</text>
+
+  <!-- ============ DATA SOURCES ============ -->
+  <g font-family="var(--sans)">
+    <g filter="url(#soft2)">
+      <rect x="60" y="850" width="150" height="76" rx="10" fill="url(#ext2)"/>
+      <text x="135" y="880" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Oracle (RAC)</text>
+      <text x="135" y="900" text-anchor="middle" fill="#dde2ee" font-size="11">JDBC · UCP pool</text>
+    </g>
+    <g filter="url(#soft2)">
+      <rect x="220" y="850" width="150" height="76" rx="10" fill="url(#ext2)"/>
+      <text x="295" y="880" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Postgres / MSSQL</text>
+      <text x="295" y="900" text-anchor="middle" fill="#dde2ee" font-size="11">JDBC · DBCP2 pool</text>
+    </g>
+    <g filter="url(#soft2)">
+      <rect x="380" y="850" width="150" height="76" rx="10" fill="url(#ext2)"/>
+      <text x="455" y="880" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Teradata</text>
+      <text x="455" y="900" text-anchor="middle" fill="#dde2ee" font-size="11">JDBC · DBCP2 pool</text>
+    </g>
+    <g filter="url(#soft2)">
+      <rect x="540" y="850" width="150" height="76" rx="10" fill="url(#ext2)"/>
+      <text x="615" y="880" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">MongoDB</text>
+      <text x="615" y="900" text-anchor="middle" fill="#dde2ee" font-size="11">native driver pool</text>
+    </g>
+    <g filter="url(#soft2)">
+      <rect x="700" y="850" width="150" height="76" rx="10" fill="url(#ext2)"/>
+      <text x="775" y="880" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">S3</text>
+      <text x="775" y="900" text-anchor="middle" fill="#dde2ee" font-size="11">AWS SDK · TM</text>
+    </g>
+    <g filter="url(#soft2)">
+      <rect x="860" y="850" width="200" height="76" rx="10" fill="url(#ext2)"/>
+      <text x="960" y="880" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">External APIs</text>
+      <text x="960" y="900" text-anchor="middle" fill="#dde2ee" font-size="11">sync &amp; async (webhook / poll)</text>
+    </g>
+  </g>
+
+  <!-- SPI → sources -->
+  <path d="M460,780 L135,850" stroke="#5b3ea0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)" fill="none"/>
+  <path d="M460,780 L295,850" stroke="#5b3ea0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)" fill="none"/>
+  <path d="M460,780 L455,850" stroke="#5b3ea0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)" fill="none"/>
+  <path d="M460,780 L615,850" stroke="#5b3ea0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)" fill="none"/>
+  <path d="M460,780 L775,850" stroke="#5b3ea0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)" fill="none"/>
+  <path d="M460,780 L960,850" stroke="#5b3ea0" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- Async path arrow callout under sources -->
+  <g>
+    <rect x="60" y="960" width="1000" height="80" rx="10" fill="#fff4e5" stroke="#b25c00" stroke-dasharray="3 3"/>
+    <text x="560" y="985" text-anchor="middle" fill="#7a4000" font-size="13" font-weight="700">Async API path — two modes for upstreams that don't return in-line</text>
+    <text x="560" y="1006" text-anchor="middle" fill="#7a4000" font-size="12">
+      Mode A · Webhook: upstream returns request_id → toolreg-router stores trace → upstream calls /callbacks/{trace_id} → toolreg-async-cb resolves trace.
+    </text>
+    <text x="560" y="1024" text-anchor="middle" fill="#7a4000" font-size="12">
+      Mode B · Polling: upstream returns request_id → toolreg-router schedules polling job → toolreg-scheduler polls with backoff → resolves trace.
+    </text>
+  </g>
+
+</svg>
+</div>
+
+<div class="twocol">
+  <div class="panel">
+    <h2>Execution paths</h2>
+    <h3>Sync path (most common)</h3>
+    <div class="step"><div class="n">1</div><div class="t"><b>Caller invokes execute.</b> ADK agent calls <code>execute(tool_id, params)</code> over gRPC or MCP.</div></div>
+    <div class="step"><div class="n">2</div><div class="t"><b>Router resolves &amp; gates.</b> Identity check, resolves <code>tool_id</code> → SourceTool, checks Redis-backed quotas.</div></div>
+    <div class="step"><div class="n">3</div><div class="t"><b>Pool acquire.</b> JDBC pool (UCP/DBCP2/Tomcat/Hikari) gives a connection. Vault is touched only at pool init, not per call.</div></div>
+    <div class="step"><div class="n">4</div><div class="t"><b>Execute under guardrails.</b> Statement timeout, row cap, byte cap; streamed back when large.</div></div>
+    <div class="step"><div class="n">5</div><div class="t"><b>Audit + circuit breaker.</b> Every call written to the audit store; Resilience4j updates source health.</div></div>
+
+    <h3>Async path · Mode A (webhook)</h3>
+    <div class="step"><div class="n async">1</div><div class="t"><b>Submit.</b> Caller invokes <code>executeAsync</code>; router calls upstream, gets <code>request_id</code>.</div></div>
+    <div class="step"><div class="n async">2</div><div class="t"><b>Trace.</b> Router persists <code>async_trace</code> {trace_id, request_id, status=pending}.</div></div>
+    <div class="step"><div class="n async">3</div><div class="t"><b>Webhook arrives.</b> Upstream POSTs <code>/callbacks/{trace_id}</code> → <code>toolreg-async-cb</code> validates signature, updates trace, signals waiter.</div></div>
+    <div class="step"><div class="n async">4</div><div class="t"><b>Caller collects.</b> Agent <code>GET /v1/traces/{trace_id}</code> or subscribes via SSE.</div></div>
+
+    <h3>Async path · Mode B (polling)</h3>
+    <div class="step"><div class="n blue">1</div><div class="t"><b>Submit.</b> Same as above — but upstream has no webhook.</div></div>
+    <div class="step"><div class="n blue">2</div><div class="t"><b>Schedule.</b> Router registers a Quartz job in <code>toolreg-scheduler</code> with exponential backoff.</div></div>
+    <div class="step"><div class="n blue">3</div><div class="t"><b>Poll.</b> Scheduler polls the upstream status endpoint until complete / failed / TTL exceeded.</div></div>
+    <div class="step"><div class="n blue">4</div><div class="t"><b>Resolve trace.</b> Same retrieval path as Mode A.</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Service responsibilities</h2>
+    <h3><span class="pill router">Router</span> toolreg-router</h3>
+    <ul>
+      <li>Single entry point — gRPC + REST + optional MCP for execution.</li>
+      <li>Holds JDBC pools in-process; memory-heavy, scales horizontally.</li>
+      <li>Owns identity, quotas, rate limits, timeouts, circuit breakers.</li>
+      <li>Emits the audit record for every call.</li>
+    </ul>
+    <h3><span class="pill cb">Webhook</span> toolreg-async-cb</h3>
+    <ul>
+      <li>Public-ish endpoint <code>/callbacks/{trace_id}</code>.</li>
+      <li>Signature verification per upstream.</li>
+      <li>Updates <code>async_trace</code> and notifies subscribers.</li>
+      <li>Stateless, separate scaling from router.</li>
+    </ul>
+    <h3><span class="pill sched">Scheduler</span> toolreg-scheduler</h3>
+    <ul>
+      <li>Quartz cluster for resilient polling.</li>
+      <li>Backoff policy per upstream; TTL on traces.</li>
+      <li>No driver pools — purely orchestration.</li>
+    </ul>
+    <h3>DDaaS link</h3>
+    <p>Tool Registry reads <code>tool_definition</code> from DDaaS at boot and on cache invalidation. Tool Registry only <em>executes</em>; DDaaS owns <em>meaning</em>.</p>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>What flows between Tool Registry and DDaaS</h2>
+  <ul>
+    <li><strong>DDaaS → Tool Registry (during registration / profiling)</strong> — <code>testConnection</code>, <code>describeSchema</code>, <code>sampleRows</code>. Tool Registry is the only component opening source connections.</li>
+    <li><strong>DDaaS → Tool Registry (at boot)</strong> — Tool Registry caches <code>tool_definition</code> records; invalidated by <code>ddaas.dictionary.updated</code> Kafka events.</li>
+    <li><strong>Tool Registry → DDaaS (operational)</strong> — degraded-source events surface in the DDaaS UI so stewards can see which Tools are unhealthy.</li>
+  </ul>
+  <p>Both services share a small internal <code>platform-contracts</code> Maven artifact (proto + generated Java stubs) so the contract is versioned and not duplicated.</p>
+</div>
+
+</div>
+</body>
+</html>

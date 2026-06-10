@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>High-Level Design — Data Dictionary as a Service &amp; Tool Registry (Project O2A)</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --panel: #ffffff;
+    --ink: #1a1f2e;
+    --ink-soft: #3f475c;
+    --ink-mute: #6b7388;
+    --rule: #e1e5ee;
+    --accent: #1f4ea6;
+    --accent-2: #2c5fb8;
+    --accent-soft: #e8f0fb;
+    --warn: #b25c00;
+    --warn-soft: #fff4e5;
+    --ok: #14704a;
+    --ok-soft: #e1f3ea;
+    --danger: #a32a2a;
+    --danger-soft: #fde7e7;
+    --code-bg: #0c1224;
+    --code-ink: #d8def0;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 36px 28px 96px; }
+
+  header.cover {
+    background: linear-gradient(135deg, #14306b 0%, #1f4ea6 55%, #2c5fb8 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 38px 38px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 14px 40px rgba(20,48,107,0.22);
+  }
+  header.cover .eyebrow { font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; opacity: 0.85; }
+  header.cover h1 { margin: 8px 0 6px; font-size: 30px; letter-spacing: -0.3px; font-weight: 700; }
+  header.cover h2 { margin: 0 0 16px; font-size: 18px; font-weight: 500; opacity: 0.92; }
+  header.cover .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.18); }
+  header.cover .meta-grid div { font-size: 12px; }
+  header.cover .meta-grid div span { display: block; opacity: 0.75; letter-spacing: 0.6px; text-transform: uppercase; font-size: 10px; margin-bottom: 3px; }
+
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  nav.toc h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--ink-mute); font-weight: 600; }
+  nav.toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 38px; }
+  nav.toc li { padding: 4px 0; break-inside: avoid; }
+  nav.toc a { color: var(--ink-soft); text-decoration: none; font-size: 14px; }
+  nav.toc a:hover { color: var(--accent); text-decoration: underline; }
+
+  section {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  section h2 { font-size: 22px; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.2px; }
+  section h2 .num { color: var(--accent); font-weight: 700; margin-right: 10px; font-variant-numeric: tabular-nums; }
+  section h3 { font-size: 16px; margin: 22px 0 8px; font-weight: 600; color: var(--ink); }
+  section h4 { font-size: 13px; margin: 16px 0 6px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.7px; }
+  section p { margin: 0 0 12px; color: var(--ink-soft); }
+  section p.lede { font-size: 15.5px; color: var(--ink); }
+  section ul, section ol { margin: 0 0 12px; padding-left: 22px; color: var(--ink-soft); }
+  section li { margin: 5px 0; }
+  section li strong { color: var(--ink); }
+
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 16px; border-radius: 8px; margin: 14px 0; color: var(--ink); font-size: 14px; }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .callout.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+  .callout.danger { border-left-color: var(--danger); background: var(--danger-soft); }
+  .callout strong { display: block; margin-bottom: 4px; font-size: 13px; letter-spacing: 0.3px; text-transform: uppercase; }
+
+  pre.diagram, pre.code {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+  pre.code .kw { color: #9ad0ff; }
+  pre.code .str { color: #b7e4a8; }
+  pre.code .com { color: #7d8aa8; font-style: italic; }
+
+  code.inline { background: #eef0f5; border: 1px solid var(--rule); border-radius: 5px; padding: 1px 6px; font-family: var(--mono); font-size: 12.5px; color: #2a3144; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 14px; }
+  table th, table td { border-bottom: 1px solid var(--rule); padding: 9px 10px; text-align: left; vertical-align: top; }
+  table th { background: #eef2f8; font-weight: 600; color: var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  table td { color: var(--ink-soft); }
+  table td code { background: #eef0f5; border-radius: 4px; padding: 1px 5px; font-family: var(--mono); font-size: 12.5px; color: #2a3144; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 12px 0; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 12px 0; }
+  .card { background: #fafbfd; border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; }
+  .card h4 { margin: 0 0 8px; color: var(--accent); letter-spacing: 0.4px; }
+  .card p { margin: 0; font-size: 13.5px; }
+
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; }
+  .pill.in { background: var(--ok-soft); color: var(--ok); }
+  .pill.out { background: var(--danger-soft); color: var(--danger); }
+  .pill.later { background: var(--warn-soft); color: var(--warn); }
+  .pill.rec { background: var(--accent-soft); color: var(--accent); }
+
+  .ctrl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 28px; margin: 12px 0 18px; padding: 16px 20px; background: #fafbfd; border: 1px dashed var(--rule); border-radius: 10px; font-size: 13px; }
+  .ctrl div { display: flex; gap: 8px; }
+  .ctrl div b { color: var(--ink-mute); font-weight: 600; min-width: 110px; }
+
+  footer.foot { color: var(--ink-mute); font-size: 12px; text-align: center; padding-top: 28px; }
+
+  @media (max-width: 760px) {
+    nav.toc ol { columns: 1; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    section { padding: 22px 20px; }
+    header.cover { padding: 26px 22px; }
+    header.cover .meta-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="cover">
+  <div class="eyebrow">Project O2A · Observe to Agent</div>
+  <h1>High-Level Design Document</h1>
+  <h2>Data Dictionary as a Service (DDaaS) &amp; Tool Registry</h2>
+  <div class="meta-grid">
+    <div><span>Document</span>HLD v0.1 (Draft)</div>
+    <div><span>Owner</span>Platform Engineering</div>
+    <div><span>Scope</span>DDaaS + Tool Registry</div>
+    <div><span>Stack</span>Java 21 · Spring Boot 3</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">Document Control</a></li>
+    <li><a href="#s2">Executive Summary</a></li>
+    <li><a href="#s3">Scope &amp; Assumptions</a></li>
+    <li><a href="#s4">Business Context (O2A)</a></li>
+    <li><a href="#s5">Architecture Overview</a></li>
+    <li><a href="#s6">Component 1 — DDaaS Design</a></li>
+    <li><a href="#s7">Component 2 — Tool Registry Design</a></li>
+    <li><a href="#s8">Connection Pool Strategy (HikariCP-independent)</a></li>
+    <li><a href="#s9">Integration Contracts</a></li>
+    <li><a href="#s10">Data Model</a></li>
+    <li><a href="#s11">Cross-Cutting Concerns</a></li>
+    <li><a href="#s12">Non-Functional Requirements</a></li>
+    <li><a href="#s13">Deployment View</a></li>
+    <li><a href="#s14">Failure Modes &amp; Recovery</a></li>
+    <li><a href="#s15">Capacity Planning</a></li>
+    <li><a href="#s16">Risks &amp; Mitigations</a></li>
+    <li><a href="#s17">Open Decisions</a></li>
+    <li><a href="#s18">Phasing &amp; Milestones</a></li>
+    <li><a href="#s19">Appendix A — Tech Stack Matrix</a></li>
+    <li><a href="#s20">Appendix B — Glossary</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="num">1.</span>Document Control</h2>
+  <div class="ctrl">
+    <div><b>Title</b>HLD — DDaaS &amp; Tool Registry</div>
+    <div><b>Project</b>O2A (Observe to Agent)</div>
+    <div><b>Version</b>0.1 — Draft</div>
+    <div><b>Status</b>For review</div>
+    <div><b>Audience</b>Architecture review board, eng leads, security, SRE</div>
+    <div><b>Confidentiality</b>Internal</div>
+  </div>
+  <h3>1.1 Change log</h3>
+  <table>
+    <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td>0.1</td><td>2026-06-10</td><td>Platform Eng</td><td>Initial HLD draft.</td></tr>
+    </tbody>
+  </table>
+  <h3>1.2 Reviewers (sign-off)</h3>
+  <ul>
+    <li>Solution Architect — design soundness</li>
+    <li>Security Architect — Vault, credentials, mTLS, audit</li>
+    <li>Data Platform Lead — DB connectivity, pool strategy</li>
+    <li>SRE Lead — operability, observability, capacity</li>
+    <li>Project O2A Lead — integration with Ingestion Pipeline &amp; Google ADK</li>
+  </ul>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="num">2.</span>Executive Summary</h2>
+  <p class="lede">Project O2A turns recorded human SOP execution into autonomous, data-aware agents. The Ingestion Pipeline emits a SKILL.md per SOP. Google ADK runs those agents. Between them sit the two components owned by this design: <strong>Data Dictionary as a Service (DDaaS)</strong> — the catalog that makes every SKILL.md data-aware — and the <strong>Tool Registry</strong> — the connection-pooled execution layer the running agents call.</p>
+  <p>This HLD covers both components end-to-end: functional design, event-driven pipeline, data model, APIs (REST + MCP), per-source connectors, sync/async API tools, governance, observability, deployment, and capacity. It also resolves the open question on JDBC pooling by introducing a <strong>pluggable ConnectionPoolProvider SPI</strong>, so the platform is not coupled to HikariCP and can run on Oracle UCP, Apache DBCP2, or Tomcat JDBC Pool depending on enterprise approval.</p>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="num">3.</span>Scope &amp; Assumptions</h2>
+  <h3>3.1 In scope <span class="pill in">Owned</span></h3>
+  <ul>
+    <li>DDaaS — source onboarding UI, backend, Kafka-driven profiling, LLM enrichment, steward approval, REST + MCP exposure.</li>
+    <li>Tool Registry — connection pools, per-source-type tools, sync + async API execution, Vault integration, audit, governance.</li>
+    <li>Shared platform-contracts library (proto + generated Java stubs).</li>
+    <li>Operability — observability, deployment, capacity planning for the above.</li>
+  </ul>
+  <h3>3.2 Out of scope <span class="pill out">External</span></h3>
+  <ul>
+    <li>SKAN.ai capture and the Ingestion Pipeline (upstream producer of SKILL.md).</li>
+    <li>SKILL.md authoring and Python placeholder generation.</li>
+    <li>Google ADK agent runtime (downstream consumer).</li>
+    <li>Business glossary curation tool (we import; we do not author).</li>
+  </ul>
+  <h3>3.3 Assumptions</h3>
+  <ul>
+    <li>HashiCorp Vault (or an enterprise-approved equivalent) is available for secret storage.</li>
+    <li>Kafka cluster is available for event streaming.</li>
+    <li>Postgres is approved for service backing stores.</li>
+    <li>Kubernetes is the deployment target.</li>
+    <li>An enterprise LLM endpoint is available (Claude, internal gateway, or equivalent).</li>
+  </ul>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="num">4.</span>Business Context — O2A</h2>
+  <p>Operations teams across business lines execute Standard Operating Procedures that validate records across structured databases, REST APIs, and unstructured documents in S3. The work is time-consuming, repetitive, error-prone, and unauditable when distributed across humans. O2A captures the work via SKAN.ai, codifies it as SKILL.md, generates agents that perform the secondary validation autonomously, and runs them at scale.</p>
+  <p>The decisive bottleneck for accuracy is <strong>data-awareness</strong>: agents fail when they don't know which table holds the record, what a column means, which API operation answers the question, or how two datasets relate. DDaaS solves discovery; Tool Registry solves governed execution. Together they make automation scalable rather than artisanal.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="num">5.</span>Architecture Overview</h2>
+
+  <h3>5.1 System context</h3>
+<pre class="diagram">
+                          ┌─────────────────────┐
+                          │   SKAN.ai capture   │
+                          │   + SOP documents   │
+                          └──────────┬──────────┘
+                                     ▼
+                          ┌─────────────────────┐
+                          │  Ingestion Pipeline │   (NOT in scope)
+                          │  emits SKILL.md     │
+                          └──────────┬──────────┘
+                                     │ binds Tools using DDaaS
+                                     ▼
+   ┌──────────────────────────────────────────────────────────────┐
+   │              SCOPE OF THIS DESIGN (Java 21)                  │
+   │                                                              │
+   │   ┌────────────────────────┐      ┌────────────────────────┐ │
+   │   │  Data Dictionary as a  │      │     Tool Registry      │ │
+   │   │  Service (DDaaS)       │      │  (no LLM, exec only)   │ │
+   │   │  • Onboarding UI/API   │ ◀──▶ │  • SourceTool SPI      │ │
+   │   │  • Kafka profiling     │      │  • Pool SPI            │ │
+   │   │  • LLM enrichment      │      │  • Sync/Async API tools│ │
+   │   │  • REST + MCP catalog  │      │  • Audit + governance  │ │
+   │   └─────────┬──────────────┘      └──────────┬─────────────┘ │
+   │             │ Vault                          │ Vault         │
+   └─────────────┼────────────────────────────────┼───────────────┘
+                 │                                │
+                 ▼                                ▼
+        ┌───────────────────┐         ┌───────────────────────────┐
+        │  Google ADK       │ ◀────── │  Enterprise Data Sources  │
+        │  Agent Runtime    │  exec   │  Oracle · MSSQL · Teradata│
+        │  (NOT in scope)   │         │  Postgres · MySQL · Mongo │
+        └───────────────────┘         │  S3 · REST APIs (sync/async)│
+                                      └───────────────────────────┘
+</pre>
+
+  <h3>5.2 Component diagram (internal)</h3>
+<pre class="diagram">
+DDaaS                                                    Tool Registry
+─────                                                    ─────────────
+┌─────────────────────────────┐                         ┌──────────────────────────────┐
+│  Onboarding UI              │                         │  Tool Router                 │
+│  (React, served by Spring)  │                         │  (REST + gRPC + optional MCP)│
+└────────────┬────────────────┘                         └─────┬────────────────────────┘
+             ▼                                                │
+┌─────────────────────────────┐                               ▼
+│  Registration API           │                  ┌───────────────────────────┐
+│  Spring Web · validate ·    │                  │  SourceTool SPI           │
+│  write Vault · persist src  │                  │  ┌─────────┬─────────────┐│
+└────────────┬────────────────┘                  │  │OracleTool│PostgresTool ││
+             ▼                                   │  │MSSQLTool │TeradataTool ││
+┌─────────────────────────────┐                  │  │MySQLTool │MongoTool    ││
+│  Kafka: ddaas.source.       │                  │  │S3Tool    │ApiSyncTool  ││
+│  registered                 │                  │  │          │ApiAsyncTool ││
+└────────────┬────────────────┘                  │  └─────────┴─────────────┘│
+             ▼                                   └─────┬─────────────────────┘
+┌─────────────────────────────┐                        ▼
+│  Profiler Workers           │ ◀── samples ──▶ ┌───────────────────────────┐
+│  (per source type)          │                 │  ConnectionPool SPI       │
+└────────────┬────────────────┘                 │  Hikari | UCP | DBCP2 |   │
+             ▼                                  │  Tomcat | (Mongo/S3 use   │
+┌─────────────────────────────┐                 │  native pools)            │
+│  Kafka: ddaas.profile.      │                 └─────┬─────────────────────┘
+│  completed                  │                       ▼
+└────────────┬────────────────┘                 ┌───────────────────────────┐
+             ▼                                  │  Governance Layer         │
+┌─────────────────────────────┐                 │  Quotas · Rate limits ·   │
+│  LLM Enricher Worker        │                 │  Timeouts · Circuit       │
+│  (descriptions, glossary,   │                 │  breakers · Audit         │
+│  relationship candidates)   │                 └─────┬─────────────────────┘
+└────────────┬────────────────┘                       ▼
+             ▼                                  ┌───────────────────────────┐
+┌─────────────────────────────┐                 │  Vault Adapter            │
+│  Steward Approval UI/API    │                 │  (read secrets at         │
+└────────────┬────────────────┘                 │  pool init)               │
+             ▼                                  └───────────────────────────┘
+┌─────────────────────────────┐
+│  Catalog Surface            │
+│  REST · MCP · Search        │ (uses pgvector for semantic search)
+└─────────────────────────────┘
+</pre>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="num">6.</span>Component 1 — Data Dictionary as a Service</h2>
+
+  <h3>6.1 Responsibilities</h3>
+  <ul>
+    <li>Collect source connection details via UI and REST API.</li>
+    <li>Persist source metadata; write credentials to Vault.</li>
+    <li>Trigger asynchronous profiling via Kafka.</li>
+    <li>Profile each source object: DB tables (first 100 rows), S3 prefixes (sampled), API operations (from OpenAPI spec), Mongo collections.</li>
+    <li>Use an LLM to enrich profiles with column semantics, glossary mappings, and cross-object relationships.</li>
+    <li>Run a steward approval workflow.</li>
+    <li>Expose the approved dictionary as REST and MCP — searchable, describable, consumable by the Ingestion Pipeline.</li>
+  </ul>
+
+  <h3>6.2 Source registration flow</h3>
+<pre class="diagram">
+User ─▶ DDaaS UI ─▶ POST /v1/sources
+                       │
+                       ├─▶ validate payload
+                       ├─▶ Vault.write(credentials) → vault_ref
+                       ├─▶ Postgres.insert(source)
+                       ├─▶ Kafka.publish(ddaas.source.registered, {source_id})
+                       └─▶ 202 Accepted { source_id, status: "profiling" }
+</pre>
+
+  <h3>6.3 Profiling workers</h3>
+  <p>One pool of Spring Boot consumers subscribed to <code class="inline">ddaas.source.registered</code>. A factory selects the right profiler strategy per source type. Profilers call the <strong>Tool Registry</strong> for connection access — DDaaS does not open driver connections itself, preserving the single execution choke point.</p>
+  <table>
+    <thead><tr><th>Source type</th><th>Strategy</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Oracle / MSSQL / Teradata / Postgres / MySQL</td><td><code>SELECT</code> with dialect-aware <code>FETCH FIRST 100 ROWS ONLY</code> / <code>LIMIT 100</code> / <code>TOP 100</code> / <code>SAMPLE 100</code> per column metadata</td><td>Profiler also pulls column types, nullability, distinct-in-sample, min/max, top-K values via aggregations on the sample.</td></tr>
+      <tr><td>S3</td><td>Detect format → parquet metadata <em>or</em> CSV header → read first 100 rows of first matching file</td><td>For parquet, schema is read from footer; no full scan.</td></tr>
+      <tr><td>REST API (OpenAPI)</td><td>Parse spec → emit one virtual object per operation</td><td>No live calls during profiling. Request/response schemas become the dictionary entry.</td></tr>
+      <tr><td>MongoDB</td><td><code>find({}).limit(100)</code> per collection</td><td>Schema inferred from sampled documents; nested types preserved.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.4 Profile-completed event</h3>
+<pre class="code">
+<span class="com">// Kafka topic: ddaas.profile.completed</span>
+{
+  <span class="kw">"object_id"</span>: <span class="str">"obj_8a7e..."</span>,
+  <span class="kw">"source_id"</span>: <span class="str">"src_1f3c..."</span>,
+  <span class="kw">"kind"</span>: <span class="str">"table | collection | object_prefix | api_operation"</span>,
+  <span class="kw">"columns"</span>: [
+    {
+      <span class="kw">"name"</span>: <span class="str">"CUST_ID"</span>,
+      <span class="kw">"native_type"</span>: <span class="str">"NUMBER(12)"</span>,
+      <span class="kw">"nullable"</span>: false,
+      <span class="kw">"distinct_in_sample"</span>: 100,
+      <span class="kw">"min"</span>: <span class="str">"1000001"</span>, <span class="kw">"max"</span>: <span class="str">"1000100"</span>,
+      <span class="kw">"top_k"</span>: [...], <span class="kw">"samples"</span>: [...]
+    }
+  ],
+  <span class="kw">"profiled_at"</span>: <span class="str">"2026-06-10T14:22:11Z"</span>
+}
+</pre>
+
+  <h3>6.5 LLM enrichment</h3>
+  <p>A dedicated worker consumes <code class="inline">ddaas.profile.completed</code>, batches columns per object, and calls the LLM with a strict, schema-validated prompt. The LLM produces:</p>
+  <ul>
+    <li><strong>Column description</strong> — plain-English semantic meaning derived from name + sample values.</li>
+    <li><strong>Glossary term mapping</strong> — best matching corporate glossary entry, with confidence.</li>
+    <li><strong>Relationship candidates</strong> — across previously profiled columns, ranked by name similarity + value-overlap + LLM judgment.</li>
+  </ul>
+  <p>Output is written as <code class="inline">dictionary_entry</code> rows in <code class="inline">pending_approval</code>. Failures fall back to a stub description and flag the column for manual authoring.</p>
+
+  <h3>6.6 Approval workflow</h3>
+  <ul>
+    <li><strong>Single approve</strong> — steward reviews per column in UI.</li>
+    <li><strong>Bulk approve with rules</strong> — e.g. <em>auto-approve all columns with confidence ≥ 0.9 and no PII flag</em>.</li>
+    <li><strong>Override</strong> — steward edits description before approval; the LLM's output is preserved as an audit trail.</li>
+  </ul>
+  <p>Only approved entries are exposed via REST / MCP.</p>
+
+  <h3>6.7 External APIs</h3>
+  <table>
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td><code>/v1/sources</code></td><td>Register a new source (DB / API / S3 / Mongo).</td></tr>
+      <tr><td>GET</td><td><code>/v1/sources/{id}</code></td><td>Source detail + profiling status.</td></tr>
+      <tr><td>POST</td><td><code>/v1/sources/{id}/reprofile</code></td><td>Force a re-profile.</td></tr>
+      <tr><td>GET</td><td><code>/v1/tools</code></td><td>List approved Tools.</td></tr>
+      <tr><td>GET</td><td><code>/v1/tools/{id}/describe</code></td><td>Full dictionary entry for a Tool.</td></tr>
+      <tr><td>POST</td><td><code>/v1/tools/search</code></td><td>Semantic search over the dictionary.</td></tr>
+      <tr><td>POST</td><td><code>/v1/glossary/import</code></td><td>Bulk import a business glossary.</td></tr>
+      <tr><td>POST</td><td><code>/v1/dictionary/{id}/approve</code></td><td>Steward approval.</td></tr>
+    </tbody>
+  </table>
+  <p>The same surface is exposed as an MCP server so MCP-aware clients can call <code class="inline">describe</code> and <code class="inline">search_tools</code> directly.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="num">7.</span>Component 2 — Tool Registry</h2>
+
+  <h3>7.1 Responsibilities</h3>
+  <ul>
+    <li>Be the only component that opens connections to data sources.</li>
+    <li>Provide a Tool implementation per source type, behind a uniform interface.</li>
+    <li>Manage pooled connections, credentials, and source-side governance.</li>
+    <li>Execute sync and async API operations with a uniform <code class="inline">{trace_id, status, result}</code> response shape.</li>
+    <li>Emit a complete audit record for every call.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>No-LLM constraint</strong>
+    Tool Registry must not import any LLM SDK. All semantic work has already happened upstream in DDaaS. This keeps the execution path predictable, low-latency, and easy to security-review.
+  </div>
+
+  <h3>7.2 SourceTool SPI</h3>
+<pre class="code">
+<span class="kw">public interface</span> SourceTool {
+  String type();                                          <span class="com">// "oracle", "s3", "api-async", ...</span>
+  HealthStatus testConnection(SourceSpec spec);
+  ObjectSchema describeSchema(SourceRef src, ObjectRef o);
+  SampleResult sampleRows(SourceRef src, ObjectRef o, int n);
+  ExecutionResult execute(ExecutionRequest req);          <span class="com">// sync</span>
+  AsyncHandle   executeAsync(ExecutionRequest req);       <span class="com">// async</span>
+}
+</pre>
+  <p>Each <code class="inline">SourceTool</code> is a Spring Boot starter module. Registering a new source type means adding a module — no core changes, no rebuild of the router.</p>
+
+  <h3>7.3 Per-source tool details</h3>
+  <table>
+    <thead><tr><th>Tool</th><th>Driver</th><th>Pool</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>OracleTool</td><td>ojdbc11</td><td>UCP <span class="pill rec">Recommended</span> · DBCP2 · Hikari</td><td>UCP supports RAC, FAN/FCF; preferred where Oracle ecosystem is standard.</td></tr>
+      <tr><td>PostgresTool</td><td>pgjdbc</td><td>Hikari · DBCP2 · Tomcat JDBC</td><td>Any provider works equally; choice driven by enterprise approval list.</td></tr>
+      <tr><td>MSSQLTool</td><td>mssql-jdbc</td><td>Hikari · DBCP2</td><td>Supports Always-On listeners via JDBC properties.</td></tr>
+      <tr><td>TeradataTool</td><td>terajdbc</td><td>DBCP2 · Hikari</td><td>Set parcels/sessions per Teradata best practice.</td></tr>
+      <tr><td>MySQLTool</td><td>mysql-connector-j</td><td>Hikari · DBCP2</td><td>Standard JDBC; readonly mode flag enforced.</td></tr>
+      <tr><td>MongoTool</td><td>mongodb-driver-sync</td><td>Native driver pool</td><td>Driver pool is built in; SPI not used here.</td></tr>
+      <tr><td>S3Tool</td><td>aws-sdk-v2</td><td>Native client + Transfer Manager</td><td>Read parquet via parquet-mr, CSV via OpenCSV.</td></tr>
+      <tr><td>ApiSyncTool</td><td>Spring WebClient</td><td>Reactor Netty connection pool</td><td>Per-host limits; reactive backpressure.</td></tr>
+      <tr><td>ApiAsyncTool</td><td>Spring WebClient + scheduler</td><td>Reactor Netty + Quartz</td><td>Webhook receiver and polling modes.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.4 Sync API tool</h3>
+<pre class="diagram">
+Agent ─▶ ToolRegistry.execute(tool_id=apisync://kyc.verify, payload)
+            │
+            ├─▶ resolve operation from OpenAPI
+            ├─▶ Vault.read(credentials)  (cached per pool lifecycle)
+            ├─▶ WebClient.post(URL, headers, body).timeout(T)
+            ├─▶ audit + metrics
+            └─▶ response { status, body } back to agent
+</pre>
+
+  <h3>7.5 Async API tool</h3>
+<pre class="diagram">
+Agent ─▶ ToolRegistry.executeAsync(tool_id=apiasync://onboard.start, payload)
+            │
+            ├─▶ submit upstream request → upstream returns request_id
+            ├─▶ create trace { trace_id, request_id, status: "pending" }
+            ├─▶ MODE A: webhook
+            │     upstream → ToolRegistry /callbacks/{trace_id}
+            │     → trace.status = "complete", store result
+            ├─▶ MODE B: polling
+            │     scheduler polls upstream status endpoint with backoff
+            │     → on success, trace.status = "complete"
+            └─▶ agent calls GET /v1/traces/{trace_id} to retrieve result
+                (or subscribes to a server-sent-event stream)
+</pre>
+
+  <h3>7.6 Execute pipeline (all tools)</h3>
+  <ol>
+    <li>Authenticate caller (mTLS + signed header carrying agent identity).</li>
+    <li>Resolve <code class="inline">tool_id</code> → <code class="inline">SourceTool</code> + <code class="inline">source_id</code>.</li>
+    <li>Check per-caller and per-source quota / rate limit.</li>
+    <li>Acquire connection from pool (lazy pool init on first call).</li>
+    <li>Apply timeout, row cap, byte cap.</li>
+    <li>Execute parameterized statement / call API.</li>
+    <li>Stream result; chunk by configured page size.</li>
+    <li>Emit audit event; update Resilience4j circuit breaker.</li>
+  </ol>
+
+  <h3>7.7 External APIs</h3>
+  <table>
+    <thead><tr><th>RPC / Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>POST /v1/execute</code> (gRPC <code>Execute</code>)</td><td>Sync execute against any registered Tool.</td></tr>
+      <tr><td><code>POST /v1/execute/async</code> (gRPC <code>ExecuteAsync</code>)</td><td>Async execute; returns <code>trace_id</code>.</td></tr>
+      <tr><td><code>GET /v1/traces/{trace_id}</code></td><td>Retrieve async result.</td></tr>
+      <tr><td><code>GET /v1/traces/{trace_id}/stream</code> (SSE)</td><td>Subscribe to trace completion.</td></tr>
+      <tr><td><code>POST /callbacks/{trace_id}</code></td><td>Webhook receiver for async upstreams.</td></tr>
+      <tr><td><code>GET /v1/health/sources/{id}</code></td><td>Source health + circuit-breaker state.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="num">8.</span>Connection Pool Strategy (HikariCP-independent)</h2>
+
+  <div class="callout warn">
+    <strong>Design decision</strong>
+    The JDBC pool implementation is a <em>configuration choice per source</em>, not an architectural commitment. If HikariCP is not on the approved stack, Tool Registry runs unchanged on Oracle UCP, Apache DBCP2, or Tomcat JDBC Pool.
+  </div>
+
+  <h3>8.1 ConnectionPoolProvider SPI</h3>
+<pre class="code">
+<span class="kw">public interface</span> ConnectionPoolProvider {
+  String id();                                            <span class="com">// "hikari" | "ucp" | "dbcp2" | "tomcat"</span>
+  PoolHandle initialize(SourceSpec spec, Credentials c, PoolTuning t);
+  Connection acquire(PoolHandle h);
+  void release(PoolHandle h, Connection c);
+  PoolMetrics metrics(PoolHandle h);
+  void rotateCredentials(PoolHandle h, Credentials newC);
+  void shutdown(PoolHandle h);
+}
+</pre>
+  <p>Each provider is a Spring Boot starter; only one is on the classpath in any given deployment, selected by configuration.</p>
+
+  <h3>8.2 Provider comparison</h3>
+  <table>
+    <thead><tr><th>Provider</th><th>Strength</th><th>Weakness</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Oracle UCP</strong></td><td>RAC-aware, FAN/FCF, sharding support, Oracle-blessed</td><td>Tied to Oracle stack; verbose config</td><td>Oracle-heavy enterprises <span class="pill rec">Default for OracleTool</span></td></tr>
+      <tr><td><strong>HikariCP</strong></td><td>Fastest, smallest footprint, simple config</td><td>May not be on conservative approval lists</td><td>Greenfield or progressive shops</td></tr>
+      <tr><td><strong>Apache DBCP2</strong></td><td>Apache Software Foundation, broadly approved, mature</td><td>Slower than Hikari/UCP under heavy contention</td><td>Conservative enterprises <span class="pill rec">Universal fallback</span></td></tr>
+      <tr><td><strong>Tomcat JDBC Pool</strong></td><td>Ships with Tomcat; lightweight</td><td>Less features than UCP; tuning required</td><td>Shops standardizing on Tomcat</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.3 Configuration example</h3>
+<pre class="code">
+<span class="kw">tool-registry:</span>
+  pools:
+    default-provider: dbcp2          <span class="com"># org-wide approved default</span>
+    overrides:
+      oracle:                        <span class="com"># every Oracle source</span>
+        provider: ucp
+        tuning: { min: 5, max: 60, idle-timeout-ms: 60000, max-lifetime-ms: 1800000 }
+      postgres:
+        provider: dbcp2
+        tuning: { min: 5, max: 80, idle-timeout-ms: 30000, max-lifetime-ms: 1200000 }
+      teradata:
+        provider: dbcp2
+        tuning: { min: 2, max: 20, idle-timeout-ms: 90000, max-lifetime-ms: 1800000 }
+</pre>
+
+  <h3>8.4 Non-JDBC pooling</h3>
+  <p>Mongo, S3, and API tools do <em>not</em> go through this SPI — they use native pools provided by their drivers (Mongo driver pool, AWS SDK connection pool, Reactor Netty pool). This is correct: the SPI exists to insulate <em>JDBC</em> from a single pool product.</p>
+
+  <h3>8.5 Operational properties guaranteed across providers</h3>
+  <ul>
+    <li>Lazy initialization on first call; warmable on demand.</li>
+    <li>Credentials never logged.</li>
+    <li>Credential rotation triggers a controlled pool drain + refresh.</li>
+    <li>Metrics exposed via Micrometer with provider-agnostic names: <code class="inline">pool.active</code>, <code class="inline">pool.idle</code>, <code class="inline">pool.wait_ms</code>, <code class="inline">pool.acquire_failures</code>.</li>
+  </ul>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="num">9.</span>Integration Contracts</h2>
+
+  <h3>9.1 With the Ingestion Pipeline (upstream consumer of DDaaS)</h3>
+  <p>The Pipeline calls DDaaS at SKILL.md build time:</p>
+<pre class="code">
+1. Pipeline → POST /v1/tools/search { "q": "customer outstanding balance", "k": 8 }
+   ◀── ranked Tool IDs + summaries
+2. Pipeline → GET  /v1/tools/{id}/describe
+   ◀── full dictionary entry incl. execution_hint
+3. Pipeline embeds tool_id + describe excerpt into SKILL.md and (if generated)
+   into the Python placeholder for ADK runtime.
+</pre>
+
+  <h3>9.2 With Google ADK (downstream consumer of Tool Registry)</h3>
+  <p>The generated agent calls Tool Registry at runtime:</p>
+<pre class="code">
+1. ADK Agent ─▶ ToolRegistry.execute({ tool_id, params })
+2. Tool Registry ─▶ source ─▶ result
+3. Tool Registry ─▶ Audit log
+4. Agent continues SOP using result
+</pre>
+
+  <h3>9.3 Internal DDaaS ↔ Tool Registry</h3>
+  <p>DDaaS profilers call Tool Registry for sampling. This keeps a single execution choke point.</p>
+<pre class="code">
+DDaaS Profiler ─▶ ToolRegistry.sampleRows(source_id, object_id, 100)
+                ◀── rows + native schema
+DDaaS persists column_profile rows; emits ddaas.profile.completed.
+</pre>
+
+  <h3>9.4 Kafka topic contracts</h3>
+  <table>
+    <thead><tr><th>Topic</th><th>Producer</th><th>Consumer</th><th>Payload</th></tr></thead>
+    <tbody>
+      <tr><td><code>ddaas.source.registered</code></td><td>DDaaS API</td><td>Profiler workers</td><td><code>{ source_id, type, scoped_objects[] }</code></td></tr>
+      <tr><td><code>ddaas.profile.completed</code></td><td>Profiler</td><td>LLM Enricher</td><td><code>{ object_id, columns[] }</code></td></tr>
+      <tr><td><code>ddaas.dictionary.updated</code></td><td>LLM Enricher / Steward</td><td>Catalog cache invalidator, Ingestion Pipeline subscribers</td><td><code>{ tool_id, version }</code></td></tr>
+      <tr><td><code>ddaas.source.health</code></td><td>Tool Registry (forward)</td><td>DDaaS UI</td><td><code>{ source_id, status, error }</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="num">10.</span>Data Model</h2>
+
+  <h3>10.1 DDaaS Postgres schema</h3>
+<pre class="code">
+source(
+  id uuid pk, type text, name text, vault_ref text,
+  endpoint json, scoped_objects json,
+  status text, created_by text, created_at ts)
+
+source_object(
+  id uuid pk, source_id uuid fk, kind text,
+  name text, native_meta json)
+
+column_profile(
+  id uuid pk, object_id uuid fk, name text, native_type text,
+  nullable bool, distinct_in_sample int,
+  min text, max text, top_k json, samples json,
+  profiled_at ts)
+
+dictionary_entry(
+  id uuid pk, column_id uuid fk, version int,
+  description text, glossary_term_id uuid,
+  confidence numeric, approval_status text,
+  approved_by text, approved_at ts)
+
+glossary_term(
+  id uuid pk, term text unique, definition text,
+  synonyms text[], owner text)
+
+relationship_candidate(
+  id uuid pk, from_column_id uuid, to_column_id uuid,
+  evidence json, confidence numeric, status text)
+
+tool_definition(
+  id uuid pk, object_id uuid fk, version int,
+  mcp_schema json, rest_schema json, status text)
+
+api_spec(
+  id uuid pk, source_id uuid fk, openapi_version text,
+  raw_spec text, parsed_paths json)
+
+approval_event(
+  id uuid pk, entity_type text, entity_id uuid,
+  actor text, decision text, reason text, at ts)
+
+audit_event(
+  id uuid pk, actor text, action text,
+  entity_type text, entity_id uuid, payload json, at ts)
+</pre>
+
+  <h3>10.2 Tool Registry persistence</h3>
+<pre class="code">
+async_trace(
+  trace_id uuid pk, agent_id text, tool_id text,
+  upstream_request_id text, status text,
+  started_at ts, completed_at ts,
+  result json, error json)
+
+gateway_audit(
+  id bigserial pk, trace_id uuid, caller text, source_id uuid,
+  tool_id text, statement_hash text, params_hash text,
+  rows int, bytes int, latency_ms int, status text, at ts)
+</pre>
+  <p>Audit is written to Postgres for queryable history and mirrored to an append-only object store for the 1-year retention requirement.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <h2><span class="num">11.</span>Cross-Cutting Concerns</h2>
+
+  <h3>11.1 Security</h3>
+  <ul>
+    <li><strong>Credentials</strong> live in Vault only. Both services hold only Vault references. Only Tool Registry resolves them, at pool init.</li>
+    <li><strong>mTLS</strong> for service-to-service traffic; caller identity carried in mTLS cert + signed header.</li>
+    <li><strong>RBAC</strong> on DDaaS UI: Source Owner, Data Steward, Platform Admin, Read-Only Viewer.</li>
+    <li><strong>Statement templates only</strong> — no raw SQL passthrough from external callers.</li>
+    <li><strong>Read-only by default</strong> in v1; write-back Tools are deferred and separately governed.</li>
+  </ul>
+
+  <h3>11.2 Observability</h3>
+  <ul>
+    <li>OpenTelemetry tracing end-to-end: Ingestion Pipeline → DDaaS → Tool Registry → source.</li>
+    <li>Micrometer metrics with provider-agnostic names; Prometheus scrape.</li>
+    <li>Structured JSON logging; correlation IDs propagate via gRPC metadata.</li>
+    <li>Pre-built Grafana dashboards: pool saturation, query latency, profiling lag, LLM enrichment lag, audit rate.</li>
+  </ul>
+
+  <h3>11.3 Resilience</h3>
+  <ul>
+    <li>Resilience4j circuit breaker per source; degraded sources marked in DDaaS UI.</li>
+    <li>Per-tool retry policy — idempotent reads only.</li>
+    <li>Kafka consumer DLQ for poison events; retries with exponential backoff.</li>
+    <li>Pool acquire timeout shorter than query timeout to surface saturation early.</li>
+  </ul>
+
+  <h3>11.4 Configuration management</h3>
+  <ul>
+    <li>Spring Cloud Config (or equivalent) for environment-specific overrides.</li>
+    <li>Per-source pool tuning is hot-reloadable without restart.</li>
+  </ul>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+  <h2><span class="num">12.</span>Non-Functional Requirements</h2>
+  <table>
+    <thead><tr><th>Property</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Catalog size</td><td>100s of sources · 50K+ objects</td></tr>
+      <tr><td>Concurrent agent runs</td><td>1,000s sustained · 10K active queries cluster-wide</td></tr>
+      <tr><td>DDaaS <code>describe</code> p95</td><td>&lt; 100 ms (cache-served)</td></tr>
+      <tr><td>DDaaS <code>search</code> p95</td><td>&lt; 300 ms across 50K objects</td></tr>
+      <tr><td>Tool Registry overhead p95</td><td>&lt; 50 ms (excludes source time)</td></tr>
+      <tr><td>Profiling throughput</td><td>50K-object source in &lt; 24h · incremental re-profile &lt; 1h</td></tr>
+      <tr><td>Availability</td><td>99.9% for catalog and execution APIs</td></tr>
+      <tr><td>Audit retention</td><td>1 year, queryable</td></tr>
+      <tr><td>Secret handling</td><td>Vault only · zero secrets at rest in service storage</td></tr>
+      <tr><td>RTO / RPO</td><td>RTO &lt; 30 min · RPO &lt; 5 min (Postgres + Kafka replication)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+  <h2><span class="num">13.</span>Deployment View</h2>
+  <h3>13.1 Topology</h3>
+<pre class="diagram">
+Kubernetes namespace: o2a-platform
+
+DDaaS                                Tool Registry
+─────                                ─────────────
+  ddaas-api          (HPA on RPS)       toolreg-router    (HPA on active queries)
+  ddaas-profiler     (HPA on Kafka lag) toolreg-pool-mgr  (stateful pool memory)
+  ddaas-enricher     (HPA on Kafka lag) toolreg-async-cb  (webhook receiver)
+  ddaas-ui-static    (CDN)              toolreg-scheduler (polling jobs)
+
+Shared infra
+────────────
+  Postgres HA          (ddaas + toolreg databases)
+  Kafka cluster        (3 brokers · MRS or MSK)
+  Vault HA             (3 nodes)
+  Redis                (rate-limit counters · circuit-breaker state)
+  pgvector / OpenSearch (semantic search index)
+  Object store (S3)    (audit append + raw sample blobs)
+</pre>
+
+  <h3>13.2 Environments</h3>
+  <ul>
+    <li><strong>Dev</strong> — single namespace, in-cluster Postgres + Kafka.</li>
+    <li><strong>UAT</strong> — production-like topology, real Vault, anonymized data sources.</li>
+    <li><strong>Prod</strong> — multi-AZ, autoscaled, full backup &amp; DR.</li>
+  </ul>
+</section>
+
+<!-- 14 -->
+<section id="s14">
+  <h2><span class="num">14.</span>Failure Modes &amp; Recovery</h2>
+  <table>
+    <thead><tr><th>Failure</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Source DB down</td><td>Tool calls fail</td><td>Circuit breaker opens, DDaaS marks source <em>degraded</em>, retries scheduled.</td></tr>
+      <tr><td>Vault outage</td><td>New pool init fails</td><td>Existing pools keep working; new sources block; alarm to SRE.</td></tr>
+      <tr><td>Kafka broker loss</td><td>Profiling backs up</td><td>Producer retries; consumers resume from offsets; no data loss.</td></tr>
+      <tr><td>LLM endpoint down</td><td>Enrichment stalls</td><td>Stub descriptions written, columns flagged for manual; profile data preserved.</td></tr>
+      <tr><td>Pool exhaustion</td><td>Query waits</td><td>Acquire timeout fails fast; HPA scales replicas; alarm fires.</td></tr>
+      <tr><td>Async upstream never callbacks</td><td>Trace hangs</td><td>Polling fallback; trace TTL marks as <code>timeout</code>.</td></tr>
+      <tr><td>Postgres failover</td><td>Brief write unavailability</td><td>Spring Retry on write paths; consumer offsets durable.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="s15">
+  <h2><span class="num">15.</span>Capacity Planning (initial sizing)</h2>
+  <table>
+    <thead><tr><th>Service</th><th>Replicas</th><th>CPU / mem per pod</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>ddaas-api</td><td>4</td><td>1 / 2 GB</td><td>Stateless; scales on RPS.</td></tr>
+      <tr><td>ddaas-profiler</td><td>6 (burst 20)</td><td>2 / 4 GB</td><td>Scales on Kafka lag.</td></tr>
+      <tr><td>ddaas-enricher</td><td>4 (burst 12)</td><td>1 / 2 GB</td><td>LLM-bound; concurrency limited.</td></tr>
+      <tr><td>toolreg-router</td><td>8 (burst 32)</td><td>2 / 4 GB</td><td>Holds JDBC pools — memory-heavy.</td></tr>
+      <tr><td>toolreg-async-cb</td><td>3</td><td>1 / 2 GB</td><td>Webhook receiver.</td></tr>
+      <tr><td>toolreg-scheduler</td><td>2</td><td>1 / 2 GB</td><td>Polling jobs.</td></tr>
+    </tbody>
+  </table>
+  <p>Pool sizing rule of thumb: per source, <code class="inline">max = min(source_supports, &nbsp;ceil(peak_qps × avg_latency_s × 1.3))</code>, total cluster-wide &lt; source's configured connection limit divided by replica count.</p>
+</section>
+
+<!-- 16 -->
+<section id="s16">
+  <h2><span class="num">16.</span>Risks &amp; Mitigations</h2>
+  <table>
+    <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Connection pool product not approved</td><td>Medium</td><td>Project delay</td><td>Pool SPI; multiple approved providers ready.</td></tr>
+      <tr><td>LLM cost overrun on profiling 50K objects</td><td>Medium</td><td>Budget</td><td>Batch prompts, cache per-column hashes, rate limit enrichment.</td></tr>
+      <tr><td>Steward bottleneck on approval</td><td>High</td><td>Slow onboarding</td><td>Bulk approval rules; auto-approve high-confidence non-PII columns.</td></tr>
+      <tr><td>Source DB credentials policy forbids long-lived secrets</td><td>Medium</td><td>Re-architecture</td><td>Vault dynamic secrets; rotate-on-rotate hooks in pool SPI.</td></tr>
+      <tr><td>Async upstream APIs vary widely</td><td>High</td><td>Edge cases</td><td>Webhook + polling modes; per-source adapter layer.</td></tr>
+      <tr><td>SKILL.md schema changes by Ingestion team</td><td>Medium</td><td>Contract break</td><td>Versioned DDaaS describe output; compatibility tests in CI.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 17 -->
+<section id="s17">
+  <h2><span class="num">17.</span>Open Decisions</h2>
+  <ol>
+    <li><strong>Approved JDBC pool</strong> — confirm enterprise stance (UCP for Oracle, DBCP2 elsewhere is the safest default).</li>
+    <li><strong>Vault flavor</strong> — HashiCorp Vault or AWS Secrets Manager?</li>
+    <li><strong>Profiling inline vs always-async</strong> — recommend always-async with UI status badge.</li>
+    <li><strong>Glossary source</strong> — import from existing tool or author in-platform?</li>
+    <li><strong>Sampling for very large tables</strong> — first 100 (v1) vs stratified per partition (v2).</li>
+    <li><strong>Caller identity</strong> — per-agent service account vs shared ADK identity.</li>
+    <li><strong>Async API uniformity</strong> — webhook-first with polling fallback, or always-poll for uniformity?</li>
+    <li><strong>Write-back tools</strong> — confirmed out of v1?</li>
+    <li><strong>Tool ID stability across schema changes</strong> — stable ID, schema versioned underneath (recommended).</li>
+  </ol>
+</section>
+
+<!-- 18 -->
+<section id="s18">
+  <h2><span class="num">18.</span>Phasing &amp; Milestones</h2>
+  <table>
+    <thead><tr><th>Phase</th><th>Duration</th><th>Deliverables</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Phase 1 — MVP</strong> <span class="pill in">In scope</span></td>
+        <td>~12 weeks</td>
+        <td>
+          DDaaS for Postgres, Oracle, S3, REST OpenAPI · LLM enrichment (semantics + glossary mapping) · Steward UI · MCP + REST surface ·
+          Tool Registry with OracleTool, PostgresTool, S3Tool, ApiSyncTool · Pool SPI with DBCP2 default and UCP for Oracle ·
+          Vault, mTLS, audit, OpenTelemetry · Integration smoke tests with Ingestion Pipeline and ADK.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2 — Coverage</strong> <span class="pill later">Next</span></td>
+        <td>~10 weeks</td>
+        <td>
+          Add Teradata, MSSQL, MySQL, Mongo · ApiAsyncTool (webhook + polling) · Business glossary import + UI ·
+          Relationship inference UI · Bulk approval workflow · Semantic search at scale.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Phase 3 — Enterprise hardening</strong> <span class="pill later">Later</span></td>
+        <td>~12 weeks</td>
+        <td>
+          Stratified sampling for very large tables · Write-back Tools (separately governed) · Federated cross-source joins ·
+          Multi-region Tool Registry · PII / sensitivity auto-classification.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 19 -->
+<section id="s19">
+  <h2><span class="num">19.</span>Appendix A — Tech Stack Matrix</h2>
+  <table>
+    <thead><tr><th>Concern</th><th>DDaaS</th><th>Tool Registry</th></tr></thead>
+    <tbody>
+      <tr><td>Language / runtime</td><td>Java 21 · Spring Boot 3</td><td>Java 21 · Spring Boot 3</td></tr>
+      <tr><td>HTTP</td><td>Spring Web (REST)</td><td>Spring Web (REST) · gRPC · WebFlux (API tools)</td></tr>
+      <tr><td>Event streaming</td><td>Spring Kafka</td><td>Spring Kafka (audit fan-out)</td></tr>
+      <tr><td>Persistence</td><td>Spring Data JPA + Postgres · pgvector</td><td>Spring Data JPA + Postgres · Redis</td></tr>
+      <tr><td>Secrets</td><td>Vault SDK (write)</td><td>Vault SDK (read at pool init)</td></tr>
+      <tr><td>Pooling</td><td>n/a (delegates sampling to Tool Registry)</td><td>ConnectionPoolProvider SPI (Hikari / UCP / DBCP2 / Tomcat)</td></tr>
+      <tr><td>Resilience</td><td>Resilience4j (LLM retries)</td><td>Resilience4j (CB · rate limit · retry)</td></tr>
+      <tr><td>MCP</td><td>Java MCP SDK</td><td>Optional MCP front for execution</td></tr>
+      <tr><td>Observability</td><td>OpenTelemetry · Micrometer</td><td>OpenTelemetry · Micrometer</td></tr>
+      <tr><td>Container / orch</td><td>Docker · Kubernetes · HPA on RPS / lag</td><td>Docker · Kubernetes · HPA on active queries</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 20 -->
+<section id="s20">
+  <h2><span class="num">20.</span>Appendix B — Glossary</h2>
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>O2A</td><td>Observe to Agent — the parent program.</td></tr>
+      <tr><td>SKAN.ai</td><td>Activity capture system that records human SOP execution.</td></tr>
+      <tr><td>SKILL.md</td><td>Markdown procedural document the Ingestion Pipeline emits; ADK runs it.</td></tr>
+      <tr><td>DDaaS</td><td>Data Dictionary as a Service — catalog + enrichment + exposure.</td></tr>
+      <tr><td>Tool Registry</td><td>Execution layer with pooled connections and per-source Tools.</td></tr>
+      <tr><td>SourceTool</td><td>SPI for source-type-specific Tool implementations.</td></tr>
+      <tr><td>ConnectionPoolProvider</td><td>SPI that abstracts the JDBC pool implementation.</td></tr>
+      <tr><td>MCP</td><td>Model Context Protocol — tool surface understood by ADK-style agents.</td></tr>
+      <tr><td>Trace</td><td>Async execution handle returned by ApiAsyncTool.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="foot">
+  Project O2A · HLD for DDaaS &amp; Tool Registry · v0.1 Draft
+</footer>
+
+</div>
+</body>
+</html>
