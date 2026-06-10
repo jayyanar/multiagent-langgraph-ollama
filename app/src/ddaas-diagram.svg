@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 2800" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f9fbff"/>
+      <stop offset="1" stop-color="#eef3fb"/>
+    </linearGradient>
+    <linearGradient id="apiG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#2c5fb8"/><stop offset="1" stop-color="#1a3f80"/>
+    </linearGradient>
+    <linearGradient id="workerG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#1f8d5b"/><stop offset="1" stop-color="#0f5c39"/>
+    </linearGradient>
+    <linearGradient id="kafkaG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#e89a3b"/><stop offset="1" stop-color="#b56a16"/>
+    </linearGradient>
+    <linearGradient id="storeG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#7e5cc6"/><stop offset="1" stop-color="#4d2f8c"/>
+    </linearGradient>
+    <linearGradient id="vaultG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#c14444"/><stop offset="1" stop-color="#7d1f1f"/>
+    </linearGradient>
+    <linearGradient id="llmG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#1aa0a0"/><stop offset="1" stop-color="#076262"/>
+    </linearGradient>
+    <linearGradient id="extG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#6b7388"/><stop offset="1" stop-color="#3d4456"/>
+    </linearGradient>
+    <linearGradient id="titleG" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#14306b"/><stop offset="1" stop-color="#2c5fb8"/>
+    </linearGradient>
+
+    <marker id="arrBlk" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#2a3144"/>
+    </marker>
+    <marker id="arrBlue" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#1f4ea6"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#14704a"/>
+    </marker>
+    <marker id="arrOrange" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#b56a16"/>
+    </marker>
+    <marker id="arrTeal" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#0d8a8a"/>
+    </marker>
+    <marker id="arrRed" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L12,6 L0,12 z" fill="#8e2424"/>
+    </marker>
+
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feOffset in="b" dy="4" result="o"/>
+      <feComponentTransfer in="o" result="o2"><feFuncA type="linear" slope="0.22"/></feComponentTransfer>
+      <feMerge><feMergeNode in="o2"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect width="2400" height="2800" fill="url(#bgGrad)"/>
+
+  <!-- TITLE BAR -->
+  <rect x="0" y="0" width="2400" height="170" fill="url(#titleG)"/>
+  <text x="100" y="70" fill="#cfdbf2" font-size="22" font-weight="700" letter-spacing="3">PROJECT O2A · COMPONENT 1</text>
+  <text x="100" y="130" fill="#ffffff" font-size="56" font-weight="800" letter-spacing="-1">Data Dictionary as a Service — Architecture &amp; Flow</text>
+
+  <!-- LEGEND BAND -->
+  <g transform="translate(100, 200)">
+    <rect width="2200" height="80" rx="14" fill="#ffffff" stroke="#dbe2ec" stroke-width="2"/>
+    <g font-size="22" font-weight="600" fill="#3f475c">
+      <rect x="40" y="28" width="24" height="24" rx="4" fill="#1f4ea6"/>
+      <text x="80" y="46">API service</text>
+      <rect x="280" y="28" width="24" height="24" rx="4" fill="#14704a"/>
+      <text x="320" y="46">Worker (Kafka-driven)</text>
+      <rect x="630" y="28" width="24" height="24" rx="4" fill="#b56a16"/>
+      <text x="670" y="46">Kafka topic</text>
+      <rect x="870" y="28" width="24" height="24" rx="4" fill="#4d2f8c"/>
+      <text x="910" y="46">Datastore / index</text>
+      <rect x="1180" y="28" width="24" height="24" rx="4" fill="#7d1f1f"/>
+      <text x="1220" y="46">Vault</text>
+      <rect x="1330" y="28" width="24" height="24" rx="4" fill="#076262"/>
+      <text x="1370" y="46">LLM endpoint</text>
+      <rect x="1580" y="28" width="24" height="24" rx="4" fill="#3d4456"/>
+      <text x="1620" y="46">External system</text>
+    </g>
+  </g>
+
+  <!-- ============== ACTORS ROW (y=340) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="340" width="420" height="180" rx="20" fill="url(#extG)"/>
+    <text x="330" y="400" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">Source Owner</text>
+    <text x="330" y="440" text-anchor="middle" fill="#d8def0" font-size="20">Submits DB / API / S3 / Mongo</text>
+    <text x="330" y="470" text-anchor="middle" fill="#d8def0" font-size="20">connection through DDaaS UI</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="580" y="340" width="420" height="180" rx="20" fill="url(#extG)"/>
+    <text x="790" y="400" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">Data Steward</text>
+    <text x="790" y="440" text-anchor="middle" fill="#d8def0" font-size="20">Approves dictionary entries</text>
+    <text x="790" y="470" text-anchor="middle" fill="#d8def0" font-size="20">(single &amp; bulk-by-rule)</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1420" y="340" width="420" height="180" rx="20" fill="url(#extG)"/>
+    <text x="1630" y="400" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">Ingestion Pipeline</text>
+    <text x="1630" y="440" text-anchor="middle" fill="#d8def0" font-size="20">Reads catalog at</text>
+    <text x="1630" y="470" text-anchor="middle" fill="#d8def0" font-size="20">SKILL.md build time</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1880" y="340" width="400" height="180" rx="20" fill="url(#extG)"/>
+    <text x="2080" y="400" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">Google ADK</text>
+    <text x="2080" y="440" text-anchor="middle" fill="#d8def0" font-size="20">Reads describe() at runtime</text>
+    <text x="2080" y="470" text-anchor="middle" fill="#d8def0" font-size="20">via MCP</text>
+  </g>
+
+  <!-- ============== DDAAS-API ROW (y=620) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="620" width="2160" height="240" rx="22" fill="url(#apiG)"/>
+    <text x="1200" y="690" text-anchor="middle" fill="#ffffff" font-size="44" font-weight="800">ddaas-api</text>
+    <text x="1200" y="730" text-anchor="middle" fill="#cfdbf2" font-size="22">Spring Boot 3 · REST + MCP · HPA on RPS · stateless</text>
+    <line x1="180" y1="755" x2="2220" y2="755" stroke="#cfdbf2" stroke-opacity="0.35" stroke-width="2"/>
+    <g font-size="22" fill="#e7eef9">
+      <text x="180" y="800">• POST /v1/sources — register, validate, write Vault</text>
+      <text x="180" y="836">• POST /v1/dictionary/{id}/approve — steward workflow</text>
+      <text x="1240" y="800">• GET /v1/tools, /tools/{id}/describe — catalog read</text>
+      <text x="1240" y="836">• POST /v1/tools/search — semantic search via pgvector</text>
+    </g>
+  </g>
+
+  <!-- Arrows from actors to api -->
+  <path d="M330,520 L330,620" stroke="#1f4ea6" stroke-width="5" marker-end="url(#arrBlue)" fill="none"/>
+  <text x="370" y="580" fill="#1f4ea6" font-size="24" font-weight="800">1 register</text>
+
+  <path d="M790,520 L790,620" stroke="#1f4ea6" stroke-width="5" marker-end="url(#arrBlue)" fill="none"/>
+  <text x="830" y="580" fill="#1f4ea6" font-size="24" font-weight="800">8 approve</text>
+
+  <path d="M1630,620 L1630,520" stroke="#1f4ea6" stroke-width="5" marker-end="url(#arrBlue)" fill="none"/>
+  <text x="1340" y="580" fill="#1f4ea6" font-size="24" font-weight="800">10 search / describe</text>
+
+  <path d="M2080,620 L2080,520" stroke="#1f4ea6" stroke-width="5" marker-end="url(#arrBlue)" fill="none"/>
+  <text x="2120" y="580" fill="#1f4ea6" font-size="24" font-weight="800">describe (MCP)</text>
+
+  <!-- ============== STORES BELOW API (y=920) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="920" width="380" height="170" rx="16" fill="url(#vaultG)"/>
+    <text x="310" y="985" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">Vault</text>
+    <text x="310" y="1025" text-anchor="middle" fill="#f7d9d9" font-size="20">secrets only · vault_ref</text>
+    <text x="310" y="1055" text-anchor="middle" fill="#f7d9d9" font-size="20">persisted in registry</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="540" y="920" width="450" height="170" rx="16" fill="url(#storeG)"/>
+    <text x="765" y="985" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">Postgres (registry)</text>
+    <text x="765" y="1025" text-anchor="middle" fill="#e3dbf2" font-size="20">source · object · column_profile</text>
+    <text x="765" y="1055" text-anchor="middle" fill="#e3dbf2" font-size="20">dictionary_entry · glossary</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1030" y="920" width="450" height="170" rx="16" fill="url(#storeG)" opacity="0.9"/>
+    <text x="1255" y="985" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="800">pgvector index</text>
+    <text x="1255" y="1025" text-anchor="middle" fill="#e3dbf2" font-size="20">semantic search over</text>
+    <text x="1255" y="1055" text-anchor="middle" fill="#e3dbf2" font-size="20">approved descriptions</text>
+  </g>
+
+  <!-- API → stores -->
+  <path d="M400,860 L310,920" stroke="#8e2424" stroke-width="4" marker-end="url(#arrRed)" fill="none"/>
+  <text x="220" y="900" fill="#8e2424" font-size="22" font-weight="800">2 write secret</text>
+
+  <path d="M770,860 L770,920" stroke="#4d2f8c" stroke-width="4" marker-end="url(#arrBlue)" fill="none"/>
+  <text x="820" y="895" fill="#4d2f8c" font-size="22" font-weight="800">persist source</text>
+
+  <path d="M1300,860 L1255,920" stroke="#4d2f8c" stroke-width="4" marker-end="url(#arrBlue)" fill="none"/>
+  <text x="1300" y="900" fill="#4d2f8c" font-size="22" font-weight="800">index on approve</text>
+
+  <!-- ============== KAFKA SOURCE.REGISTERED (y=920 right side) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="1560" y="920" width="720" height="170" rx="16" fill="url(#kafkaG)"/>
+    <text x="1920" y="985" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="800">Kafka topic</text>
+    <text x="1920" y="1020" text-anchor="middle" fill="#fef0d4" font-size="24" font-weight="700">ddaas.source.registered</text>
+    <text x="1920" y="1055" text-anchor="middle" fill="#fef0d4" font-size="20">{ source_id, type, scoped_objects[] }</text>
+  </g>
+  <path d="M1800,860 L1800,920" stroke="#b56a16" stroke-width="5" marker-end="url(#arrOrange)" fill="none"/>
+  <text x="1820" y="895" fill="#b56a16" font-size="24" font-weight="800">3 emit</text>
+
+  <!-- ============== DDAAS-PROFILER (y=1190) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="1190" width="1440" height="340" rx="22" fill="url(#workerG)"/>
+    <text x="840" y="1260" text-anchor="middle" fill="#ffffff" font-size="44" font-weight="800">ddaas-profiler</text>
+    <text x="840" y="1300" text-anchor="middle" fill="#d5ecdc" font-size="22">Spring Boot worker · HPA on Kafka lag · idempotent per object_id</text>
+    <line x1="180" y1="1322" x2="1500" y2="1322" stroke="#d5ecdc" stroke-opacity="0.35" stroke-width="2"/>
+    <text x="180" y="1365" fill="#ffffff" font-size="24" font-weight="800">Profiling strategies (factory by source.type)</text>
+    <g font-size="22" fill="#e9f5ee">
+      <text x="180" y="1410">• JDBC — dialect-aware FETCH FIRST 100 ROWS</text>
+      <text x="180" y="1448">  Captures: type · nullability · distinct · min/max · top-K · samples</text>
+      <text x="180" y="1486">• S3 — parquet footer / CSV header → first 100 rows of first file</text>
+      <text x="900" y="1410">• OpenAPI — operations become virtual objects</text>
+      <text x="900" y="1448">  (request/response schemas as dictionary)</text>
+      <text x="900" y="1486">• MongoDB — find({}).limit(100); infer schema</text>
+    </g>
+  </g>
+
+  <!-- TOOL REGISTRY context -->
+  <g filter="url(#shadow)">
+    <rect x="1600" y="1190" width="680" height="340" rx="22" fill="url(#extG)"/>
+    <text x="1940" y="1260" text-anchor="middle" fill="#ffffff" font-size="36" font-weight="800">Tool Registry</text>
+    <text x="1940" y="1300" text-anchor="middle" fill="#d8def0" font-size="20">(context — Component 2)</text>
+    <line x1="1660" y1="1322" x2="2220" y2="1322" stroke="#d8def0" stroke-opacity="0.35" stroke-width="2"/>
+    <text x="1940" y="1365" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="800">Only component that opens source connections</text>
+    <g font-size="22" fill="#eef2f9">
+      <text x="1640" y="1420">DDaaS delegates here for:</text>
+      <text x="1640" y="1456">• testConnection(spec)</text>
+      <text x="1640" y="1492">• describeSchema(src, obj)</text>
+      <text x="1640" y="1528">• sampleRows(src, obj, 100)</text>
+    </g>
+  </g>
+
+  <!-- Kafka → profiler -->
+  <path d="M1800,1090 L1100,1190" stroke="#b56a16" stroke-width="5" marker-end="url(#arrOrange)" fill="none"/>
+  <text x="1300" y="1170" fill="#b56a16" font-size="24" font-weight="800">4 consume</text>
+
+  <!-- Profiler ↔ Tool Registry -->
+  <path d="M1560,1340 L1600,1340" stroke="#2a3144" stroke-width="5" marker-end="url(#arrBlk)" fill="none"/>
+  <text x="1450" y="1330" fill="#2a3144" font-size="22" font-weight="800">5 sampleRows</text>
+  <path d="M1600,1400 L1560,1400" stroke="#2a3144" stroke-width="5" marker-end="url(#arrBlk)" fill="none"/>
+  <text x="1450" y="1420" fill="#2a3144" font-size="22" font-weight="800">rows + schema</text>
+
+  <!-- Profiler → Postgres (write column_profile) - dashed -->
+  <path d="M400,1190 L770,1090" stroke="#14704a" stroke-width="4" stroke-dasharray="8 6" marker-end="url(#arrGreen)" fill="none"/>
+  <text x="350" y="1150" fill="#14704a" font-size="22" font-weight="800">write column_profile</text>
+
+  <!-- ============== KAFKA PROFILE.COMPLETED (y=1600) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="1600" width="1440" height="160" rx="16" fill="url(#kafkaG)"/>
+    <text x="840" y="1660" text-anchor="middle" fill="#ffffff" font-size="30" font-weight="800">Kafka topic</text>
+    <text x="840" y="1695" text-anchor="middle" fill="#fef0d4" font-size="24" font-weight="700">ddaas.profile.completed</text>
+    <text x="840" y="1730" text-anchor="middle" fill="#fef0d4" font-size="20">{ object_id, columns[] with native_type · samples · stats }</text>
+  </g>
+  <path d="M840,1530 L840,1600" stroke="#b56a16" stroke-width="5" marker-end="url(#arrOrange)" fill="none"/>
+  <text x="860" y="1575" fill="#b56a16" font-size="24" font-weight="800">6 emit</text>
+
+  <!-- ============== DDAAS-ENRICHER (y=1830) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="1830" width="1440" height="360" rx="22" fill="url(#workerG)"/>
+    <text x="840" y="1900" text-anchor="middle" fill="#ffffff" font-size="44" font-weight="800">ddaas-enricher</text>
+    <text x="840" y="1940" text-anchor="middle" fill="#d5ecdc" font-size="22">Spring Boot worker · LLM-bound · concurrency-capped · only component that uses LLM</text>
+    <line x1="180" y1="1962" x2="1500" y2="1962" stroke="#d5ecdc" stroke-opacity="0.35" stroke-width="2"/>
+    <text x="180" y="2005" fill="#ffffff" font-size="24" font-weight="800">LLM enrichment pass per object</text>
+    <g font-size="22" fill="#e9f5ee">
+      <text x="180" y="2050">• Plain-English column descriptions</text>
+      <text x="180" y="2088">• Business glossary term mapping (with confidence)</text>
+      <text x="180" y="2126">• Cross-object relationship candidates (join keys)</text>
+      <text x="900" y="2050">• Writes dictionary_entry (pending_approval)</text>
+      <text x="900" y="2088">• Stub + flag on LLM failure (never drop a column)</text>
+      <text x="900" y="2126">• Publishes ddaas.dictionary.updated on approve</text>
+    </g>
+  </g>
+
+  <!-- LLM endpoint -->
+  <g filter="url(#shadow)">
+    <rect x="1600" y="1830" width="680" height="250" rx="22" fill="url(#llmG)"/>
+    <text x="1940" y="1900" text-anchor="middle" fill="#ffffff" font-size="36" font-weight="800">LLM Endpoint</text>
+    <line x1="1660" y1="1925" x2="2220" y2="1925" stroke="#caeded" stroke-opacity="0.35" stroke-width="2"/>
+    <g font-size="22" fill="#caeded">
+      <text x="1640" y="1970">Internal Claude gateway</text>
+      <text x="1640" y="2002">Schema-validated prompts</text>
+      <text x="1640" y="2034">Batched per object · retry policy</text>
+      <text x="1640" y="2066">Cost-aware throttling</text>
+    </g>
+  </g>
+
+  <!-- Kafka → enricher -->
+  <path d="M840,1760 L840,1830" stroke="#b56a16" stroke-width="5" marker-end="url(#arrOrange)" fill="none"/>
+  <text x="860" y="1805" fill="#b56a16" font-size="24" font-weight="800">7 consume</text>
+
+  <!-- Enricher ↔ LLM -->
+  <path d="M1560,1955 L1600,1955" stroke="#0d8a8a" stroke-width="5" marker-end="url(#arrTeal)" fill="none"/>
+  <text x="1500" y="1945" fill="#0d8a8a" font-size="22" font-weight="800">enrich</text>
+  <path d="M1600,2010 L1560,2010" stroke="#0d8a8a" stroke-width="5" marker-end="url(#arrTeal)" fill="none"/>
+
+  <!-- Enricher → Postgres (write dictionary_entry pending) -->
+  <path d="M400,1830 L770,1090" stroke="#14704a" stroke-width="4" stroke-dasharray="8 6" marker-end="url(#arrGreen)" fill="none" opacity="0.65"/>
+  <text x="220" y="1810" fill="#14704a" font-size="22" font-weight="800">write dictionary_entry (pending)</text>
+
+  <!-- ============== APPROVAL LOOP CALLOUT (y=2280) ============== -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="2260" width="2160" height="240" rx="22" fill="#fff4e5" stroke="#b56a16" stroke-width="3" stroke-dasharray="10 6"/>
+    <text x="1200" y="2330" text-anchor="middle" fill="#7a4000" font-size="34" font-weight="800">Close the loop · Steward approval</text>
+    <text x="1200" y="2380" text-anchor="middle" fill="#7a4000" font-size="22">9 — Steward approves in UI → ddaas-api updates dictionary_entry to approved</text>
+    <text x="1200" y="2418" text-anchor="middle" fill="#7a4000" font-size="22">→ pgvector indexed → ddaas.dictionary.updated event → Catalog Surface exposes Tool</text>
+    <text x="1200" y="2462" text-anchor="middle" fill="#7a4000" font-size="22" font-style="italic">Bulk-approve-by-rule supported for 50K+ objects (e.g. auto-approve confidence ≥ 0.9 with no PII flag)</text>
+  </g>
+
+  <!-- FOOTER -->
+  <text x="1200" y="2740" text-anchor="middle" fill="#6b7388" font-size="20">Project O2A · DDaaS architecture v0.1 · numbered steps 1–10 trace one complete onboarding-to-exposure cycle</text>
+
+</svg>

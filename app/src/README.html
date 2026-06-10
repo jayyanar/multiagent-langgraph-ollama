@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data-Aware Agent Platform — Tool Registry &amp; Data Gateway</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --panel: #ffffff;
+    --ink: #1f2330;
+    --ink-soft: #4a5163;
+    --ink-mute: #6b7280;
+    --rule: #e4e7ec;
+    --accent: #2c5fb8;
+    --accent-soft: #eaf1fb;
+    --warn: #b25c00;
+    --warn-soft: #fff4e5;
+    --ok: #1b7a4c;
+    --ok-soft: #e6f4ec;
+    --code-bg: #0f1320;
+    --code-ink: #d5dae8;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 28px 96px; }
+
+  header.hero {
+    background: linear-gradient(135deg, #1f3a72 0%, #2c5fb8 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 36px 36px 30px;
+    margin-bottom: 28px;
+    box-shadow: 0 12px 36px rgba(31,58,114,0.18);
+  }
+  header.hero .eyebrow { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; opacity: 0.85; margin-bottom: 10px; }
+  header.hero h1 { margin: 0 0 8px; font-size: 32px; font-weight: 700; letter-spacing: -0.3px; }
+  header.hero p.subtitle { margin: 0; opacity: 0.92; font-size: 16px; max-width: 760px; }
+  header.hero .meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+  header.hero .chip { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 5px 12px; border-radius: 999px; font-size: 12px; }
+
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 28px;
+  }
+  nav.toc h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mute); font-weight: 600; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 36px; }
+  nav.toc li { padding: 3px 0; break-inside: avoid; }
+  nav.toc a { color: var(--ink-soft); text-decoration: none; font-size: 14px; }
+  nav.toc a:hover { color: var(--accent); text-decoration: underline; }
+
+  section {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 22px;
+  }
+  section h2 { font-size: 22px; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.2px; }
+  section h2 .num { color: var(--accent); font-weight: 700; margin-right: 10px; font-variant-numeric: tabular-nums; }
+  section h3 { font-size: 16px; margin: 22px 0 8px; font-weight: 600; color: var(--ink); }
+  section h4 { font-size: 14px; margin: 16px 0 6px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.6px; }
+  section p { margin: 0 0 12px; color: var(--ink-soft); }
+  section p.lede { font-size: 16px; color: var(--ink); }
+  section ul, section ol { margin: 0 0 12px; padding-left: 22px; color: var(--ink-soft); }
+  section li { margin: 5px 0; }
+  section li strong { color: var(--ink); }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin: 14px 0;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .callout.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+
+  pre.diagram {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+
+  code.inline {
+    background: #eef0f5;
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: #2a3144;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 18px;
+    font-size: 14px;
+  }
+  table th, table td {
+    border-bottom: 1px solid var(--rule);
+    padding: 9px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table th {
+    background: #f3f5f9;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  table td { color: var(--ink-soft); }
+  table td code { background: #eef0f5; border-radius: 4px; padding: 1px 5px; font-family: var(--mono); font-size: 12.5px; color: #2a3144; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 12px 0; }
+  .grid-2 .card { background: #fafbfd; border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; }
+  .grid-2 .card h4 { margin-top: 0; color: var(--accent); }
+
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; }
+  .pill.in { background: var(--ok-soft); color: var(--ok); }
+  .pill.out { background: #fde7e7; color: #a63232; }
+  .pill.later { background: var(--warn-soft); color: var(--warn); }
+
+  footer.foot { color: var(--ink-mute); font-size: 12px; text-align: center; padding-top: 28px; }
+  footer.foot a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 720px) {
+    nav.toc ol { columns: 1; }
+    .grid-2 { grid-template-columns: 1fr; }
+    section { padding: 22px 20px; }
+    header.hero { padding: 26px 22px; }
+    header.hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Internal Platform Initiative</div>
+    <h1>Data-Aware Agent Platform</h1>
+    <p class="subtitle">A two-service foundation — Tool Registry and Data Gateway — that turns data discovery, integration, and governed execution into platform capabilities so that LLM agents generated from SKILLS or SOPs are data-aware by construction and run at enterprise scale.</p>
+    <div class="meta">
+      <span class="chip">Java 21 · Spring Boot 3</span>
+      <span class="chip">Single-tenant internal</span>
+      <span class="chip">Enterprise scale</span>
+      <span class="chip">Two repositories</span>
+      <span class="chip">MCP + REST surface</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#overview">Executive Overview</a></li>
+      <li><a href="#problem">Problem Statement</a></li>
+      <li><a href="#why-two">Why Two Services</a></li>
+      <li><a href="#scale">How This Scales</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#tool-registry">Tool Registry — Detailed Requirements</a></li>
+      <li><a href="#data-gateway">Data Gateway — Detailed Requirements</a></li>
+      <li><a href="#contract">Inter-Service Contract</a></li>
+      <li><a href="#data-model">Data Model</a></li>
+      <li><a href="#tech-stack">Tech Stack</a></li>
+      <li><a href="#nfr">Non-Functional Requirements</a></li>
+      <li><a href="#open-decisions">Open Decisions</a></li>
+      <li><a href="#phasing">Phasing &amp; Delivery Plan</a></li>
+    </ol>
+  </nav>
+
+  <section id="overview">
+    <h2><span class="num">1.</span>Executive Overview</h2>
+    <p class="lede">Enterprises are trying to automate Standard Operating Procedures with LLM agents, but the agents keep failing because they don't know the data. Schemas live in tribal knowledge, credentials are scattered, every agent reimplements connectivity, and no team can answer "what data exists and who is allowed to read it" with a single source of truth.</p>
+    <p>This platform fixes the structural cause, not the symptom. It introduces two independently deployable services:</p>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Tool Registry</h4>
+        <p>The system of record for <strong>meaning</strong>. Catalogs every data source, profiles every object, uses an LLM to produce a curated Data Dictionary (semantics, glossary mapping, join-key candidates), and exposes each approved object as a callable Tool over MCP and REST.</p>
+      </div>
+      <div class="card">
+        <h4>Data Gateway</h4>
+        <p>The system of record for <strong>access</strong>. Owns pooled connections to every registered source, resolves credentials from Vault, executes parameterized queries within enforced quotas and timeouts, streams results, and writes a complete audit trail.</p>
+      </div>
+    </div>
+    <p>The existing Agent Generator is a downstream consumer. It calls the Tool Registry at design time to build data-aware agents, and the generated agents call the Tool Registry's MCP surface at runtime. Neither the generator nor any agent ever touches a database driver or a credential.</p>
+  </section>
+
+  <section id="problem">
+    <h2><span class="num">2.</span>Problem Statement</h2>
+
+    <h3>2.1 The problem, stated concretely</h3>
+    <p>An SOP says "reconcile the customer's outstanding balance against last quarter's payments." The agent has to guess which database holds customers, which table holds payments, what <em>outstanding</em> maps to, whether <code class="inline">cust_id</code> in one table is the same key as <code class="inline">customer_ref</code> in another, and what a given date column actually means. Today every team solves this by hand — pasting schemas into prompts, hardcoding SQL into skills, opening a JDBC connection per agent, and rewriting it all when a column gets renamed. The result is automations that are slow to build, brittle in production, impossible to govern, and unable to scale past a handful of SOPs.</p>
+
+    <h3>2.2 The five structural problems underneath</h3>
+    <ol>
+      <li><strong>No catalog of what data exists.</strong> Every team rediscovers the same tables. There is no canonical, machine-readable description of any column's meaning, sensitivity, or relationships.</li>
+      <li><strong>No standard way to expose data to agents.</strong> Each agent reimplements connectivity, query templates, and result parsing. Bugs and security gaps multiply per agent.</li>
+      <li><strong>Credentials are everywhere.</strong> DB passwords land in config files, notebooks, and agent prompts. Rotation is a fire drill.</li>
+      <li><strong>Connections don't scale.</strong> When you go from 10 concurrent agents to 1,000, each agent opening its own pool melts the source database.</li>
+      <li><strong>Governance is impossible.</strong> No one can answer "which agents read this table last week?" or "who approved exposing that column?" because there is no choke point.</li>
+    </ol>
+
+    <div class="callout">
+      <strong>Shared root cause:</strong> Data discovery, data integration, and data execution are tangled into every agent, instead of being platform capabilities.
+    </div>
+  </section>
+
+  <section id="why-two">
+    <h2><span class="num">3.</span>Why Two Services, Not One</h2>
+    <p>These problems split cleanly along a <em>metadata vs. execution</em> line, and that line should become a service boundary. Collapsing both into one service is tempting on day one and painful by month six.</p>
+
+    <table>
+      <thead>
+        <tr><th>Dimension</th><th>Tool Registry</th><th>Data Gateway</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Primary workload</td><td>Metadata reads, semantic search, LLM enrichment (offline), human approval</td><td>Active query execution, connection pooling, streaming I/O</td></tr>
+        <tr><td>Scale signal</td><td>Catalog size &amp; read QPS</td><td>Concurrent active queries &amp; connection capacity per source</td></tr>
+        <tr><td>State</td><td>Stateless API + Postgres + vector index</td><td>Stateful in memory: pools, circuit breakers, in-flight queries</td></tr>
+        <tr><td>Consumers</td><td>Many &amp; varied — agents, generator, dashboards, humans</td><td>Exactly one — the Tool Registry</td></tr>
+        <tr><td>Security posture</td><td>Holds dictionary, glossary, Tool definitions. No credentials.</td><td>Only component that holds live DB credentials in memory.</td></tr>
+        <tr><td>Release cadence</td><td>High — new tools, dictionary edits, glossary changes ship daily</td><td>Low — new connector types, pool tuning, gateway upgrades ship rarely</td></tr>
+        <tr><td>Blast radius of a bad deploy</td><td>Catalog UI wrong for a few minutes</td><td>Every running agent's query fails</td></tr>
+        <tr><td>External surface</td><td>MCP + REST + UI</td><td>Internal gRPC only — no MCP, no UI</td></tr>
+      </tbody>
+    </table>
+
+    <p>The separation is not architectural neatness; it is the only way to give each concern the operational treatment it deserves — independent scaling, independent release pipelines, independent failure modes, and a narrowly hardened security perimeter around the credentialed surface.</p>
+
+    <div class="callout ok">
+      <strong>Bonus reuse:</strong> Data Gateway, free of MCP and dictionary concerns, becomes reusable beyond agents — BI tools, data quality jobs, and ad-hoc query consoles can all sit on top of it.
+    </div>
+  </section>
+
+  <section id="scale">
+    <h2><span class="num">4.</span>How This Solves the Problem at Scale</h2>
+    <p>The architecture turns each of the five structural problems into a one-time platform investment instead of a per-agent tax.</p>
+
+    <h3>4.1 Discovery becomes asynchronous and cached</h3>
+    <p>Profiling and LLM enrichment run offline, on a schedule, against samples — not on the agent's hot path. The dictionary is read 1,000s of times for every time it's written, and 99% of reads hit a cache. Adding a new SOP doesn't trigger a single new database query.</p>
+
+    <h3>4.2 Integration becomes a contract, not a copy-paste</h3>
+    <p>Every object in every source is a Tool with the same <code class="inline">describe / query / sample</code> shape, exposed over MCP and REST. New agents inherit connectivity for free. When a column is renamed, one dictionary update propagates to every consumer.</p>
+
+    <h3>4.3 Credentials live in exactly one place</h3>
+    <p>Tool Registry never sees a password. Data Gateway resolves credentials from Vault at pool init and refreshes on rotation. Rotating a DB password becomes a Vault operation — no agent code changes, no redeploys.</p>
+
+    <h3>4.4 Connections are pooled across the entire fleet</h3>
+    <p>1,000 concurrent agent runs against Postgres share one HikariCP pool of, say, 80 connections — not 1,000 connections. The source database sees stable, bounded load no matter how many agents are running. The gateway autoscales horizontally on active-query count; each replica adds capacity, not connections per source.</p>
+
+    <h3>4.5 Governance becomes structural</h3>
+    <p>Every query in the company funnels through one audit log with caller identity, statement hash, row count, latency, and outcome. Quotas, rate limits, query timeouts, and circuit breakers are enforced by the gateway — not by trust in every agent author. The steward approval workflow on the registry side means no column is exposed to an LLM without a human (or a bulk-approval policy) signing off.</p>
+
+    <h3>4.6 The platform compounds</h3>
+    <p>Once a source is registered, every future agent that needs it gets data-awareness for free. Once a connector type is implemented, every future source of that type onboards in minutes. The marginal cost of the <em>next</em> automation drops sharply — which is the working definition of platform leverage.</p>
+  </section>
+
+  <section id="architecture">
+    <h2><span class="num">5.</span>Architecture</h2>
+
+    <h3>5.1 Component diagram</h3>
+<pre class="diagram">
+   Consumers
+   ──────────
+    Agent Generator (design-time)      Generated Agents (runtime)      Humans / Dashboards
+            │                                  │                                │
+            │     MCP                          │     MCP                        │  REST + UI
+            └─────────────┬────────────────────┴─────────────┬──────────────────┘
+                          ▼                                  ▼
+                ┌──────────────────────────────────────────────────────┐
+                │                  TOOL REGISTRY                       │
+                │  • Source onboarding UI + API                        │
+                │  • Profiling jobs (Spring Batch / Temporal)          │
+                │  • LLM enrichment → Data Dictionary                  │
+                │  • Business Glossary                                 │
+                │  • Steward approval workflow                         │
+                │  • Tool definitions + MCP server + REST              │
+                │  • Postgres (metadata) + pgvector (semantic search)  │
+                └─────────────────────┬────────────────────────────────┘
+                                      │ internal gRPC (mTLS)
+                                      ▼
+                ┌──────────────────────────────────────────────────────┐
+                │                  DATA GATEWAY                        │
+                │  • SourceConnector SPI (JDBC / Mongo / S3 / …)       │
+                │  • Connection pools per source (HikariCP / native)   │
+                │  • Vault credential resolution                       │
+                │  • Quotas, rate limits, timeouts, row/byte caps      │
+                │  • Circuit breakers, retries                         │
+                │  • Audit log (1y retention)                          │
+                └─────────────────────┬────────────────────────────────┘
+                                      │
+        ┌──────────────┬───────────┬──┴──────┬───────────┬──────────────┐
+        ▼              ▼           ▼         ▼           ▼              ▼
+     Postgres       Oracle     Teradata    MS SQL      Mongo            S3
+                                                                  (parquet/csv/json)
+                                      ▲
+                                      │
+                                    Vault  (secrets only — referenced by both services)
+</pre>
+
+    <h3>5.2 Key invariants</h3>
+    <ul>
+      <li>External consumers <strong>never</strong> talk to Data Gateway directly. Tool Registry is the only client of Data Gateway.</li>
+      <li>Data Gateway is the <strong>only</strong> component that opens a connection to any data source.</li>
+      <li>Credentials live in Vault; both services hold only Vault references. Only Data Gateway can resolve them.</li>
+      <li>Every read in the company passes through exactly one audit choke point inside Data Gateway.</li>
+      <li>Adding a new source type = adding a connector plugin. No core changes in either service.</li>
+    </ul>
+  </section>
+
+  <section id="tool-registry">
+    <h2><span class="num">6.</span>Tool Registry — Detailed Requirements</h2>
+
+    <h3>6.1 Purpose</h3>
+    <p>A governed catalog of every enterprise data source, every object inside it, and a curated Data Dictionary per object. Exposes each approved object as a callable Tool over MCP and REST.</p>
+
+    <h3>6.2 Source onboarding</h3>
+    <ul>
+      <li>Register a source via UI and REST API. Types in scope: <strong>Postgres, Oracle, Teradata, MS SQL, MySQL, MongoDB, S3</strong>. Extensible via a <code class="inline">SourceType</code> plugin.</li>
+      <li>Capture: name, type, endpoint, port, database/schema/bucket, auth method, scoped object list (tables / collections / S3 prefix + file glob + format).</li>
+      <li>Mongo input is <strong>collections</strong>. S3 input is <strong>bucket + prefix + format</strong> (parquet / csv / json).</li>
+      <li>"Test connection" must pass before save — delegated to Data Gateway.</li>
+      <li>Credentials submitted once, written to <strong>Vault</strong> by Tool Registry; only a vault reference (<code class="inline">secret_id</code>) is persisted in the registry DB.</li>
+      <li>Re-registration is idempotent — updating endpoint or scoping objects must not invalidate existing dictionary entries unless the object disappears.</li>
+    </ul>
+
+    <h3>6.3 Profiling &amp; Data Dictionary</h3>
+    <ul>
+      <li>On registration, on schedule, and on demand, launch a profiling job per object:
+        <ul>
+          <li>Sample first <strong>N rows</strong> (default 100, per-source override).</li>
+          <li>Capture per column: native type, nullability, distinct count in sample, min/max, top-K values, examples.</li>
+          <li>S3: derive schema from headers / parquet metadata; sample N rows from first file matching the prefix.</li>
+        </ul>
+      </li>
+      <li><strong>LLM enrichment</strong> produces, per column:
+        <ul>
+          <li>Plain-English semantic description.</li>
+          <li>Business glossary mapping (per §6.4).</li>
+          <li>Cross-object relationship candidates (name similarity + value-overlap heuristic + LLM confirmation).</li>
+        </ul>
+      </li>
+      <li>Persist as versioned <strong>Data Dictionary records</strong>: <code class="inline">{source, object, column, native_type, samples, description, glossary_term, related_to[], version, approval_status}</code>.</li>
+      <li>Stewards review and approve via UI; bulk-approve-with-exceptions for objects at scale.</li>
+      <li>Only <strong>approved</strong> entries are exposed as Tools.</li>
+    </ul>
+
+    <h3>6.4 Business Glossary</h3>
+    <ul>
+      <li>Importable from CSV / JSON: <code class="inline">{term, definition, synonyms, owner}</code>.</li>
+      <li>Versioned, editable in UI, used as authoritative input to the LLM mapping pass.</li>
+    </ul>
+
+    <h3>6.5 Tool exposure — the headline API surface</h3>
+    <p>Each approved object becomes a Tool with a stable ID and a uniform shape, regardless of source type.</p>
+    <table>
+      <thead><tr><th>Method</th><th>Behavior</th><th>Backed by</th></tr></thead>
+      <tbody>
+        <tr><td><code>describe(tool_id)</code></td><td>Returns the approved dictionary entry — columns, types, descriptions, glossary mapping, sample values, related Tools.</td><td>Local cache + Postgres</td></tr>
+        <tr><td><code>query(tool_id, params)</code></td><td>Parameterized read. SQL templates for RDBMS, find / aggregate for Mongo, S3 select / parquet read for S3.</td><td>Data Gateway</td></tr>
+        <tr><td><code>sample(tool_id, n)</code></td><td>Fresh sample fetch — bypasses dictionary samples.</td><td>Data Gateway</td></tr>
+        <tr><td><code>search_tools(q, k)</code></td><td>Semantic search over the dictionary. Returns ranked Tool IDs with descriptions.</td><td>pgvector / OpenSearch</td></tr>
+      </tbody>
+    </table>
+    <p>Two transports for the same surface: <strong>MCP server</strong> (for LLM tool-use) and <strong>REST</strong> (for non-MCP consumers and debugging).</p>
+
+    <h3>6.6 Consumers</h3>
+    <ul>
+      <li><strong>Agent Generator</strong> (design time): calls <code class="inline">search_tools</code> + <code class="inline">describe</code> to build the data-awareness context it injects into generated agents. <span class="pill out">Out of scope of this project</span> — documented consumer only.</li>
+      <li><strong>Generated agents</strong> (runtime): call <code class="inline">describe</code> / <code class="inline">query</code> over MCP.</li>
+      <li><strong>Humans</strong>: REST + UI for debugging and stewardship.</li>
+    </ul>
+  </section>
+
+  <section id="data-gateway">
+    <h2><span class="num">7.</span>Data Gateway — Detailed Requirements</h2>
+
+    <h3>7.1 Purpose</h3>
+    <p>The single execution layer for every registered source. Owns connection pools, credentials, query brokering, governance. Stateless toward callers; stateful toward sources.</p>
+
+    <h3>7.2 Connector SPI</h3>
+    <ul>
+      <li>Pluggable <code class="inline">SourceConnector</code> interface implemented per source type. Built-ins: JDBC (Postgres, Oracle, Teradata, MS SQL, MySQL), Mongo, S3.</li>
+      <li>Each connector exposes: <code class="inline">testConnection</code>, <code class="inline">describeSchema</code>, <code class="inline">executeQuery</code>, <code class="inline">streamResults</code>, <code class="inline">samplePreview</code>.</li>
+      <li>New source type = new connector module, no core changes.</li>
+    </ul>
+
+    <h3>7.3 Connection management</h3>
+    <ul>
+      <li>Per-source connection pools, sized and tuned independently. JDBC: <strong>HikariCP</strong>. Mongo: native driver pool. S3: native SDK + transfer manager.</li>
+      <li>Pool config (min/max/idle/timeouts) overridable per source.</li>
+      <li>Lazy pool creation on first call; warm pools on demand.</li>
+      <li>Credentials resolved from Vault at pool init; refreshed on rotation events.</li>
+    </ul>
+
+    <h3>7.4 Query brokering</h3>
+    <ul>
+      <li>API: <code class="inline">executeQuery(source_id, statement_template, params, options)</code>.</li>
+      <li>Statement templates only — no raw user SQL passthrough from external callers.</li>
+      <li>Hard-enforced safety: query timeout, row cap, byte cap, parameter binding (no string concat), prepared statements where driver supports them.</li>
+      <li>Streaming response for large result sets via gRPC server-streaming.</li>
+    </ul>
+
+    <h3>7.5 Governance</h3>
+    <ul>
+      <li>Rate limit per source and per caller identity.</li>
+      <li>Quotas (queries/min, rows/day) per caller.</li>
+      <li>mTLS between Tool Registry and Data Gateway; caller identity carried in mTLS cert + signed header.</li>
+      <li>Every call audited: <code class="inline">{caller, source, object, statement_hash, params_hash, rows, latency, status}</code>. 1y retention.</li>
+    </ul>
+
+    <h3>7.6 Profiling support</h3>
+    <ul>
+      <li>Dedicated <code class="inline">sampleRows(source_id, object_id, n)</code> endpoint used by Tool Registry profiling jobs.</li>
+      <li>Separate quota bucket so profiling never starves runtime traffic.</li>
+    </ul>
+
+    <h3>7.7 Failure handling</h3>
+    <ul>
+      <li>Per-connector retry policy (idempotent reads only).</li>
+      <li>Circuit breaker per source — if a source is degraded, fail fast on subsequent calls and notify Tool Registry to mark Tools as degraded.</li>
+    </ul>
+  </section>
+
+  <section id="contract">
+    <h2><span class="num">8.</span>Inter-Service Contract</h2>
+    <p>Versioned internal gRPC API published by Data Gateway, consumed by Tool Registry. Both repos share a small <strong><code class="inline">platform-contracts</code></strong> library (proto definitions + generated Java stubs) published as an internal Maven artifact — never duplicated.</p>
+
+    <table>
+      <thead><tr><th>RPC</th><th>Used by</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>TestConnection(SourceSpec)</code></td><td>Registration flow</td><td>Verify credentials &amp; reachability before save.</td></tr>
+        <tr><td><code>DescribeSchema(SourceRef, ObjectRef)</code></td><td>Registration</td><td>Enumerate columns / fields of an object.</td></tr>
+        <tr><td><code>SampleRows(SourceRef, ObjectRef, n)</code></td><td>Profiling jobs</td><td>Return first/sample N rows for LLM enrichment.</td></tr>
+        <tr><td><code>ExecuteQuery(SourceRef, StatementTemplate, Params, Options)</code></td><td>Tool <code>query</code></td><td>Run a parameterized read.</td></tr>
+        <tr><td><code>StreamQuery(...)</code></td><td>Tool <code>query</code> (large results)</td><td>Server-streaming variant.</td></tr>
+        <tr><td><code>GetSourceHealth(SourceRef)</code></td><td>UI, circuit-breaker status</td><td>Surface source liveness &amp; recent error rate.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>Versioning rule:</strong> The contract evolves additively. Breaking changes require a new RPC name (e.g. <code class="inline">ExecuteQueryV2</code>) and a deprecation window of at least one release.
+    </div>
+  </section>
+
+  <section id="data-model">
+    <h2><span class="num">9.</span>Data Model (high level)</h2>
+
+    <h3>9.1 Tool Registry entities</h3>
+    <table>
+      <thead><tr><th>Entity</th><th>Key fields</th></tr></thead>
+      <tbody>
+        <tr><td><code>source</code></td><td>id, name, type, endpoint, vault_ref, status, created_by, created_at</td></tr>
+        <tr><td><code>source_object</code></td><td>id, source_id, kind (table/collection/prefix), name, native_metadata</td></tr>
+        <tr><td><code>column_profile</code></td><td>id, object_id, name, native_type, nullable, distinct_count, min, max, top_k, samples, profiled_at</td></tr>
+        <tr><td><code>dictionary_entry</code></td><td>id, column_id, version, description, glossary_term_id, approval_status, approved_by, approved_at</td></tr>
+        <tr><td><code>glossary_term</code></td><td>id, term, definition, synonyms[], owner</td></tr>
+        <tr><td><code>relationship_candidate</code></td><td>id, from_column_id, to_column_id, evidence, confidence, status</td></tr>
+        <tr><td><code>tool_definition</code></td><td>id, object_id, version, mcp_schema, rest_schema, status</td></tr>
+        <tr><td><code>approval_event</code></td><td>id, entity_type, entity_id, actor, decision, reason, at</td></tr>
+        <tr><td><code>audit_event</code></td><td>id, actor, action, entity_type, entity_id, payload, at</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.2 Data Gateway entities (mostly in-memory, some persisted)</h3>
+    <table>
+      <thead><tr><th>Entity</th><th>Where it lives</th></tr></thead>
+      <tbody>
+        <tr><td><code>pool</code> (per source)</td><td>In-memory, hot</td></tr>
+        <tr><td><code>circuit_state</code> (per source)</td><td>In-memory + Redis (for cross-replica)</td></tr>
+        <tr><td><code>quota_counter</code> (per caller)</td><td>Redis</td></tr>
+        <tr><td><code>gateway_audit</code></td><td>Postgres + append-only object store (1y retention)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="tech-stack">
+    <h2><span class="num">10.</span>Tech Stack</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Tool Registry</h4>
+        <ul>
+          <li>Java 21, Spring Boot 3</li>
+          <li>Spring Batch <em>or</em> Temporal — profiling workflows</li>
+          <li>Java MCP SDK — MCP server</li>
+          <li>Spring REST — REST surface</li>
+          <li>Postgres — relational metadata</li>
+          <li>pgvector <em>or</em> OpenSearch — semantic search</li>
+          <li>Vault SDK — secret writes</li>
+          <li>OpenTelemetry — tracing &amp; metrics</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Data Gateway</h4>
+        <ul>
+          <li>Java 21, Spring Boot 3</li>
+          <li>HikariCP — JDBC pooling</li>
+          <li>MongoDB Java Driver — Mongo pool</li>
+          <li>AWS SDK v2 — S3 client + transfer manager</li>
+          <li>gRPC — internal API</li>
+          <li>Vault SDK — secret reads</li>
+          <li>Resilience4j — circuit breaker, rate limit</li>
+          <li>OpenTelemetry — tracing &amp; metrics</li>
+          <li>Kubernetes HPA — autoscaling on active queries</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="nfr">
+    <h2><span class="num">11.</span>Non-Functional Requirements</h2>
+    <table>
+      <thead><tr><th>Property</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td>Catalog size</td><td>100s of sources, 50K+ objects</td></tr>
+        <tr><td>Concurrent agent runs</td><td>1,000s sustained, 10K active queries cluster-wide</td></tr>
+        <tr><td><code>describe</code> p95 latency</td><td>&lt; 100 ms (cache-served)</td></tr>
+        <tr><td><code>search_tools</code> p95 latency</td><td>&lt; 300 ms over 50K objects</td></tr>
+        <tr><td>Gateway overhead p95</td><td>&lt; 50 ms (excluding source time)</td></tr>
+        <tr><td>Profiling throughput</td><td>50K-object source in &lt; 24h; incremental re-profile in &lt; 1h</td></tr>
+        <tr><td>Availability</td><td>99.9% for gateway and Tool APIs</td></tr>
+        <tr><td>Audit retention</td><td>1 year, queryable</td></tr>
+        <tr><td>Secret handling</td><td>Vault only; zero secrets at rest in either service's storage</td></tr>
+        <tr><td>Observability</td><td>End-to-end OpenTelemetry traces: caller → Tool Registry → Data Gateway → source</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="open-decisions">
+    <h2><span class="num">12.</span>Open Decisions</h2>
+    <ol>
+      <li><strong>Sampling strategy for very large tables</strong> — first N (cheap, biased) vs random sample (better dictionary, full scan) vs stratified per partition. Recommendation: first N for v1, stratified in v2.</li>
+      <li><strong>Write access</strong> — should <code class="inline">query</code> ever permit writes (insert/update/delete) or strictly reads in v1? Recommendation: read-only v1; writes as a separately governed Tool class later.</li>
+      <li><strong>Glossary source</strong> — import from an existing tool (Collibra / Alation / sheet) or author in-platform?</li>
+      <li><strong>Vault flavor</strong> — HashiCorp Vault, AWS Secrets Manager, or internal KMS?</li>
+      <li><strong>Caller identity model</strong> — service-account-per-agent vs shared platform identity. Affects per-caller quotas.</li>
+      <li><strong>Federated queries</strong> — must Data Gateway ever join across sources, or is that always the agent's job? Recommendation: push out of v1.</li>
+      <li><strong>Tool ID stability</strong> — when an object is re-profiled and schema changes, does the Tool ID stay the same? Recommendation: stable Tool ID, schema versioned underneath.</li>
+    </ol>
+  </section>
+
+  <section id="phasing">
+    <h2><span class="num">13.</span>Phasing &amp; Delivery Plan</h2>
+
+    <h3>Phase 1 — MVP <span class="pill in">In scope</span></h3>
+    <ul>
+      <li>Two repos scaffolded with shared <code class="inline">platform-contracts</code> artifact.</li>
+      <li>Connectors: <strong>Postgres, Oracle, S3</strong>.</li>
+      <li>Registration UI, "test connection" via gateway, Vault integration.</li>
+      <li>Profiling jobs, LLM enrichment (column semantics + glossary mapping + relationship candidates), steward approval.</li>
+      <li>MCP + REST Tool exposure with <code class="inline">describe / query / sample / search_tools</code>.</li>
+      <li>Data Gateway with HikariCP pools, audit log, circuit breakers, OpenTelemetry.</li>
+    </ul>
+
+    <h3>Phase 2 — Coverage &amp; UX <span class="pill later">Next</span></h3>
+    <ul>
+      <li>Add Teradata, MS SQL, MySQL, MongoDB connectors.</li>
+      <li>Glossary import + management UI.</li>
+      <li>Relationship inference UI with confidence scoring.</li>
+      <li>Bulk approval workflow, semantic search at scale.</li>
+    </ul>
+
+    <h3>Phase 3 — Enterprise hardening <span class="pill later">Later</span></h3>
+    <ul>
+      <li>Stratified sampling for large tables.</li>
+      <li>Write-back Tools as a separately governed class.</li>
+      <li>Federated queries (cross-source joins inside the gateway).</li>
+      <li>Multi-region gateway, active-active with regional Vault.</li>
+      <li>PII / sensitivity auto-classification.</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    Data-Aware Agent Platform · Internal architecture document · v0.1 draft
+  </footer>
+
+</div>
+</body>
+</html>
