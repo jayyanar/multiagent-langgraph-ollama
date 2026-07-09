@@ -88,4 +88,23 @@ Third-party integrations: Library versions, SDK usage patterns
 Backward compatibility: How to handle legacy code/data
 The key difference from HLD: LLD should be detailed enough that a developer can start coding immediately without making major design decisions. Think of it as the blueprint that developers will directly translate into code.
 
+==
+
+Seeking Your Approval to Initiate My Resignation
+
+First and foremost, I want to sincerely thank you for everything you've done for me over the years. You've been much more than a manager—you've been a mentor, a well-wisher, a trusted friend, and like a big sister who has always believed in me, supported me, and guided me through every stage of my journey.
+
+Thank you for referring me to this role and placing your trust and confidence in me. The opportunity to work on such an incredible AI initiative has been one of the most rewarding experiences of my career. I'm equally grateful for the amazing team you've built. Every day has been an opportunity to learn, grow, and become a better engineer and leader because of the culture you've created.
+
+After a great deal of careful thought and discussion with my family, I have decided to pursue another opportunity that aligns with my current personal and long-term priorities. This was not an easy decision, especially because of the respect, gratitude, and affection I have for you and the team.
+
+Before initiating the resignation process in Workday, I wanted to personally inform you and seek your approval. I would like to request **Friday, August 28** as my proposed last working day, subject to your approval and any organizational requirements.
+
+I am deeply thankful for your mentorship, trust, and unwavering support. Whatever I have achieved here has been possible because you believed in me and gave me opportunities to take on meaningful challenges. I will always be grateful for that.
+
+I hope to continue learning from you and stay connected long after our professional paths diverge.
+
+
+
+
 Want me to help you create an LLD template or work on a specific section for your project?
