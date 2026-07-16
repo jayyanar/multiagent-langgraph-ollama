@@ -1,16 +1,47 @@
-Good Day Gokul !
+Based on the ratings you've selected and the nature of the discussion (large-scale DataOps platforms, architecture trade-offs, fraud detection, real-time processing, AI/GenAI, resiliency and scaling), I would suggest writing the feedback in a Principal Engineer calibration-friendly manner.
 
-I would like to share some feedback regarding the way Operational Excellence is being led by Adi. I am observing a few gaps that are impacting our delivery and team efficiency.
+### Deep Technical Credibility (4/5)
 
-Adi is often committing timelines to the business without fully understanding the ground realities, technical complexities, or the impact on the teams. These short-term commitments are made without a strategic view of how we should be building the application/product. As a result, it is derailing the development effort and causing unnecessary churn for the team.
+> Prahlad demonstrated strong technical depth across large-scale data engineering and AI-enabled platform architectures. He was able to articulate architectural trade-offs across processing paradigms (real-time, micro-batch, and batch), discuss metadata management, data lineage, provenance, and fraud detection use cases. He demonstrated good engineering judgement when discussing technology choices and was comfortable reasoning about scalability, resiliency, and maintainability considerations. While his examples reflected solid technical credibility, additional evidence of measurable enterprise-wide outcomes and long-term architectural impact would further strengthen the assessment.
 
+---
 
-1. Additionally, new team members  from US have been added with the expectation of immediate productivity, but without providing them adequate ramp-up time. This has introduced additional challenges for the existing teams and slowed down overall progress.Introducing two new POs and a new Scrum Master—who are also new to Wells Fargo—has further slowed the process instead of accelerating it.
-2. There is also limited collaboration with the POs on requirements and roadmaps. I find myself having to feed most of the functional and feature-level details, which is not sustainable. Moreover, difficult conversations with PO leaders about unrealistic expectations are not being addressed proactively
-3. The lack of a clearly defined RACI is adding to the confusion. For example, I had aligned the team and work items, but suddenly the resource Bilal was removed from user story tasks and reassigned to O2A activities. Such changes without coordination make it difficult to plan and deliver effectively.
+### Current Technical Fluency (4/5)
 
+> Prahlad demonstrated good awareness of modern engineering practices across cloud-native architectures, AI/ML workloads, DataOps, and platform engineering concepts. He was able to connect technology choices with practical applications and discuss modern data processing patterns and resiliency considerations. His responses reflected hands-on understanding of contemporary engineering trends rather than relying on technology buzzwords. Greater emphasis on adoption strategies and demonstrating production-scale implementations across broader engineering organizations would elevate this further.
 
-I wanted to bring this to your attention so we can collectively address these issues and ensure smoother execution going forward.
+---
 
-Regards
-AJ
+### Enterprise Scale Scope (3/5)
+
+> Prahlad demonstrated cross-functional technical exposure across multiple problem domains including DataOps, fraud detection, and large-scale data platform architectures. His solutions considered scalability and multi-workload requirements; however, the discussion provided limited evidence of enterprise-wide adoption, organization-level standards, or measurable cross-team impact beyond the immediate technical solution. Additional examples demonstrating technical direction-setting across multiple teams or platforms would strengthen evidence of Principal-level enterprise scope.
+
+---
+
+### Execution under Ambiguity (3/5)
+
+> Prahlad approaches ambiguous technical problems with structured thinking and is able to decompose complex requirements into practical architectural components. He demonstrated the ability to reason through trade-offs across processing models and technology choices. However, the interview provided comparatively limited evidence around independently driving highly ambiguous, high-risk initiatives involving stakeholder alignment, phased roadmaps, prioritization decisions, and measurable delivery outcomes at enterprise scale. Additional examples illustrating end-to-end ownership of ambiguous technical initiatives would further strengthen this dimension.
+
+---
+
+### Influence without Authority (4/5)
+
+> Prahlad communicates technical concepts effectively and demonstrates sound engineering judgement when discussing architectural alternatives and recommendations. He was able to explain trade-offs clearly and engage constructively across multiple technical domains. His responses reflected an ability to influence technical decisions through data-driven reasoning rather than technology preferences alone. Broader examples of influencing senior stakeholders and driving alignment across larger organizations would provide additional evidence toward the highest rating.
+
+---
+
+### Force Multiplying Behaviour (3/5)
+
+> Prahlad demonstrated a collaborative technical mindset and shared practical engineering perspectives throughout the discussion. While he exhibits strong individual technical capabilities, the interview provided limited evidence of creating scalable mechanisms such as reusable frameworks, engineering standards, playbooks, or capability-building initiatives that materially improve engineering quality across multiple teams. Additional examples demonstrating mentorship of senior engineers or organization-wide technical enablement would strengthen this assessment.
+
+---
+
+### Overall Candidate Feedback
+
+> Prahlad is a technically strong Principal Engineer candidate who demonstrates solid architectural thinking, current technical fluency, and sound engineering judgement across modern data and AI-enabled platforms. He communicates trade-offs effectively and shows strong technical credibility when discussing complex engineering problems spanning DataOps, fraud detection, large-scale data processing architectures, and resiliency considerations.
+>
+> His strongest areas are technical depth, modern engineering practices, and technical influence. The primary opportunities for growth are demonstrating broader enterprise-scale impact, independently driving highly ambiguous technical initiatives, and providing stronger evidence of force multiplication through reusable engineering mechanisms and cross-organizational adoption.
+>
+> Overall, I believe the identified gaps are manageable and do not detract from his ability to contribute effectively at the Principal Engineer level. I am recommending **Hire** based on his strong technical capabilities and engineering judgement, with opportunities to further expand the breadth of enterprise-scale impact and organizational influence.
+
+This wording is aligned with a **4,4,3,3,4,3 → Hire** recommendation and is suitable for PE/Bar Raiser style feedback.
